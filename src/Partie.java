@@ -14,53 +14,58 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import plateau.Hex;
+
 public class Partie {
     public plateau.Sector[] sector = { null, null, null, null, null, null, null, null, null };
 
-    public void affichage_plateau() {  
-        int[][][] pos={
-            {{50,50},{100,100},{50,50},{50,50},{50,50},{50,50}},
-            {{50,50},{50,50},{50,50},{50,50},{50,50},{50,50}},
-            // {"1","1","1","1","1","1"},
-            // {"1","1","1","1","1","1"},
-            // {"1","1","1","1","1","1"},
-            // {"1","1","1","1","1","1"},
-            // {"1","1","1","1","1","1"},
-            // {"1","1","1","1","1","1"},
-            // {"1","1","1","1","1","1"},
-            // {"1","1","1","1","1","1"},
+    public void affichage_plateau() {
+        int[][] pos = {
+                 { 10, 80 }, { 110, 80 }, { 210, 80 }, { 310, 80 }, { 410, 80 }, { 510, 80 }, // sector 1
+                 { 60, 180 }, { 160, 180 }, { 260, 180 }, { 360, 180 }, { 460, 180 }, { 560, 180 }, // ...
+                 { 10, 250 }, { 110, 250 }, { 210, 250 }, { 310, 250 }, { 410, 250 }, { 510, 250 },
+                 { 60, 340 }, { 160, 340 },  { 360, 340 }, { 460, 340 }, 
+                 { 10, 430 }, { 110, 430 },{ 230, 430 },  { 410, 430 }, { 510, 430 },
+                 { 60, 520 }, { 160, 520 },  { 360, 520 }, { 460, 520 }, 
+                 { 10, 600 }, { 110, 600 }, { 210, 600 }, { 310, 600 }, { 410, 600 }, { 510, 600 },
+                 { 60, 680 }, { 160, 680 }, { 260, 680 }, { 360, 680 }, { 460, 680 }, { 560, 680 },
+                 { 10, 770 }, { 110, 770 }, { 210, 770 }, { 310, 770 }, { 410, 770 }, { 510, 770 },
         };
-    try {
-        // Charger l'image de fond
-        BufferedImage image = ImageIO.read(new File("D:\\Documents\\documents Pierre\\UTT\\ISI\\ISI1\\LO02\\projet\\projet_lo2\\plateau.PNG"));
+        try {
+            // Charger l'image de fond
+            BufferedImage image = ImageIO.read(
+                    new File("D:\\Documents\\documents Pierre\\UTT\\ISI\\ISI1\\LO02\\projet\\projet_lo2\\plateau.PNG"));
 
-        // Obtenir le contexte graphique de l'image
-        Graphics g = image.getGraphics();
-        g.setFont(new Font("Arial", Font.BOLD, 24)); // Définir la police
+            // Obtenir le contexte graphique de l'image
+            Graphics g = image.getGraphics();
+            g.setFont(new Font("Arial", Font.BOLD, 20)); // Définir la police
 
-        // Définir la couleur du texte
-        g.setColor(Color.RED);
+            for (int i = 0; i < this.sector.length*6 -5; i++) {
+                    // Définir la couleur du texte
+                    g.setColor(Color.WHITE);
 
-        // Ajouter le texte à une position définie (x=50, y=50)
-        g.drawString("Bonjour, OpenAI!", pos[0][0][0], 50);
+                    // Ajouter le texte à une position définie (x=50, y=50)
+                    g.drawString(""+i, pos[i][0], pos[i][1]);
 
-        g.dispose(); // Libérer les ressources graphiques
+                    
+                
+            }
+            g.dispose(); // Libérer les ressources graphiques
+            // Afficher l'image modifiée dans une fenêtre JFrame
+            JFrame frame = new JFrame("Image avec texte");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(image.getWidth(), image.getHeight());
 
-        // Afficher l'image modifiée dans une fenêtre JFrame
-        JFrame frame = new JFrame("Image avec texte");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(image.getWidth(), image.getHeight());
+            JLabel label = new JLabel(new ImageIcon(image));
+            frame.add(label);
 
-        JLabel label = new JLabel(new ImageIcon(image));
-        frame.add(label);
+            frame.pack();
+            frame.setVisible(true);
 
-        frame.pack();
-        frame.setVisible(true);
-
-    } catch (IOException e) {
-        System.out.println("Erreur lors du chargement de l'image : " + e.getMessage());
-        e.printStackTrace();
-    }
+        } catch (IOException e) {
+            System.out.println("Erreur lors du chargement de l'image : " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void setup() {
@@ -169,7 +174,7 @@ public class Partie {
                 sector[i].getHex()[j].setId_sector(i);
             }
         }
-        sector[0].getHex()[0].get_adjacents();
+        // sector[0].getHex()[0].get_adjacents();
 
     }
 
@@ -181,6 +186,5 @@ public class Partie {
         partie.setup();
         partie.affichage_plateau();
 
-        System.out.println(partie.sector[0].getHex()[3].getAdjacents()[1].getId());
     }
 }
