@@ -1,0 +1,186 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+public class Partie {
+    public plateau.Sector[] sector = { null, null, null, null, null, null, null, null, null };
+
+    public void affichage_plateau() {  
+        int[][][] pos={
+            {{50,50},{100,100},{50,50},{50,50},{50,50},{50,50}},
+            {{50,50},{50,50},{50,50},{50,50},{50,50},{50,50}},
+            // {"1","1","1","1","1","1"},
+            // {"1","1","1","1","1","1"},
+            // {"1","1","1","1","1","1"},
+            // {"1","1","1","1","1","1"},
+            // {"1","1","1","1","1","1"},
+            // {"1","1","1","1","1","1"},
+            // {"1","1","1","1","1","1"},
+            // {"1","1","1","1","1","1"},
+        };
+    try {
+        // Charger l'image de fond
+        BufferedImage image = ImageIO.read(new File("D:\\Documents\\documents Pierre\\UTT\\ISI\\ISI1\\LO02\\projet\\projet_lo2\\plateau.PNG"));
+
+        // Obtenir le contexte graphique de l'image
+        Graphics g = image.getGraphics();
+        g.setFont(new Font("Arial", Font.BOLD, 24)); // Définir la police
+
+        // Définir la couleur du texte
+        g.setColor(Color.RED);
+
+        // Ajouter le texte à une position définie (x=50, y=50)
+        g.drawString("Bonjour, OpenAI!", pos[0][0][0], 50);
+
+        g.dispose(); // Libérer les ressources graphiques
+
+        // Afficher l'image modifiée dans une fenêtre JFrame
+        JFrame frame = new JFrame("Image avec texte");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(image.getWidth(), image.getHeight());
+
+        JLabel label = new JLabel(new ImageIcon(image));
+        frame.add(label);
+
+        frame.pack();
+        frame.setVisible(true);
+
+    } catch (IOException e) {
+        System.out.println("Erreur lors du chargement de l'image : " + e.getMessage());
+        e.printStackTrace();
+    }
+    }
+
+    public void setup() {
+        // tri prime
+        plateau.Hex[] hex = { new plateau.Hex(3) };
+        this.sector[4] = new plateau.Sector(hex);
+        // ligne du milieu
+        plateau.Hex[] hexG = { null, null, null, null, null, null };
+        hexG[0] = new plateau.Hex(2);
+        hexG[1] = new plateau.Hex(0);
+        hexG[2] = new plateau.Hex(1);
+        hexG[3] = new plateau.Hex(0);
+        hexG[4] = new plateau.Hex(1);
+        hexG[5] = new plateau.Hex(0);
+        plateau.Hex[] hexD = { null, null, null, null, null, null };
+        hexD[0] = new plateau.Hex(0);
+        hexD[1] = new plateau.Hex(1);
+        hexD[2] = new plateau.Hex(0);
+        hexD[3] = new plateau.Hex(2);
+        hexD[4] = new plateau.Hex(0);
+        hexD[5] = new plateau.Hex(1);
+        plateau.Hex[][] choix = { hexG, hexD };
+        List<plateau.Hex[]> list = Arrays.asList(choix);
+        Collections.shuffle(list);
+        sector[3] = new plateau.Sector(list.get(0));
+        sector[5] = new plateau.Sector(list.get(1));
+        // ligne du haut
+        plateau.Hex[] hexGH = { null, null, null, null, null, null };
+        hexGH[0] = new plateau.Hex(2);
+        hexGH[1] = new plateau.Hex(0);
+        hexGH[2] = new plateau.Hex(1);
+        hexGH[3] = new plateau.Hex(0);
+        hexGH[4] = new plateau.Hex(0);
+        hexGH[5] = new plateau.Hex(1);
+        plateau.Hex[] hexMH = { null, null, null, null, null, null };
+        hexMH[0] = new plateau.Hex(1);
+        hexMH[1] = new plateau.Hex(0);
+        hexMH[2] = new plateau.Hex(1);
+        hexMH[3] = new plateau.Hex(0);
+        hexMH[4] = new plateau.Hex(2);
+        hexMH[5] = new plateau.Hex(0);
+        plateau.Hex[] hexDH = { null, null, null, null, null, null };
+        hexDH[0] = new plateau.Hex(1);
+        hexDH[1] = new plateau.Hex(1);
+        hexDH[2] = new plateau.Hex(0);
+        hexDH[3] = new plateau.Hex(0);
+        hexDH[4] = new plateau.Hex(0);
+        hexDH[5] = new plateau.Hex(2);
+        // ligne du bas
+        plateau.Hex[] hexGB = { null, null, null, null, null, null };
+        hexGB[0] = new plateau.Hex(1);
+        hexGB[1] = new plateau.Hex(1);
+        hexGB[2] = new plateau.Hex(2);
+        hexGB[3] = new plateau.Hex(0);
+        hexGB[4] = new plateau.Hex(0);
+        hexGB[5] = new plateau.Hex(0);
+        plateau.Hex[] hexMB = { null, null, null, null, null, null };
+        hexMB[0] = new plateau.Hex(0);
+        hexMB[1] = new plateau.Hex(1);
+        hexMB[2] = new plateau.Hex(2);
+        hexMB[3] = new plateau.Hex(0);
+        hexMB[4] = new plateau.Hex(0);
+        hexMB[5] = new plateau.Hex(1);
+        plateau.Hex[] hexDB = { null, null, null, null, null, null };
+        hexDB[0] = new plateau.Hex(0);
+        hexDB[1] = new plateau.Hex(0);
+        hexDB[2] = new plateau.Hex(2);
+        hexDB[3] = new plateau.Hex(0);
+        hexDB[4] = new plateau.Hex(1);
+        hexDB[5] = new plateau.Hex(1);
+
+        plateau.Hex[][] choix1 = { hexGH, hexMH, hexDH, hexGB, hexMB, hexDB };
+        list = Arrays.asList(choix1);
+        // list.forEach((element) -> {
+        // System.out.println(element);
+        // for (int i = 0; i < element.length; i++)
+        // System.out.print(element[i].getPlanet_contained());
+        // });
+        // System.out.println("\n");
+        Collections.shuffle(list);
+        // list.forEach((element) -> {
+        // System.out.println(element);
+        // for (int i = 0; i < element.length; i++)
+        // System.out.print(element[i].getPlanet_contained());
+        // });
+
+        list = plateau.Sector.retourner_carte(list, hexGH, hexMH, hexDH, hexGB, hexMB, hexDB);
+        // System.out.println("\n");
+        // list.forEach((element) -> {
+        // System.out.println(element);
+        // for (int i = 0; i < element.length; i++)
+        // System.out.print(element[i].getPlanet_contained());
+        // });
+
+        sector[0] = new plateau.Sector(list.get(0));
+        sector[1] = new plateau.Sector(list.get(1));
+        sector[2] = new plateau.Sector(list.get(2));
+        sector[6] = new plateau.Sector(list.get(3));
+        sector[7] = new plateau.Sector(list.get(4));
+        sector[8] = new plateau.Sector(list.get(5));
+
+        // getadjacents
+        for (int i = 0; i < sector.length; i++) {
+            for (int j = 0; j < sector[i].getHex().length; j++) {
+                sector[i].getHex()[j].setId(j);
+                sector[i].getHex()[j].setId_sector(i);
+            }
+        }
+        sector[0].getHex()[0].get_adjacents();
+
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        Partie partie = new Partie();// a modif avec getInstance
+        partie.setup();
+        partie.affichage_plateau();
+
+        System.out.println(partie.sector[0].getHex()[3].getAdjacents()[1].getId());
+    }
+}
