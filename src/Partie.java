@@ -46,13 +46,16 @@ public class Partie {
 
                     // Ajouter le texte à une position définie (x=50, y=50)
                     g.drawString(""+i, pos[i][0], pos[i][1]);
-
+                    if (i!=24 && sector[plateau.Hex.plateau[i][0]].getHex()[plateau.Hex.plateau[i][1]].getPlanet_contained()!=0)
+                    {
+                    g.setColor(Color.RED);
+                    g.drawString(""+sector[plateau.Hex.plateau[i][0]].getHex()[plateau.Hex.plateau[i][1]].getPlanet_contained(), pos[i][0]+35, pos[i][1]);}
                     
                 
             }
             g.dispose(); // Libérer les ressources graphiques
             // Afficher l'image modifiée dans une fenêtre JFrame
-            JFrame frame = new JFrame("Image avec texte");
+            JFrame frame = new JFrame("Plateau");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(image.getWidth(), image.getHeight());
 

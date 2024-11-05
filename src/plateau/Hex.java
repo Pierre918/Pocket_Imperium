@@ -41,7 +41,7 @@ public class Hex {
     }
 
     int[][] adjacents;
-    private int[][] plateau = {
+    public static int[][] plateau = {
             { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 },
             { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 2 }, { 2, 3 },
             { 0, 4 }, { 0, 5 }, { 1, 4 }, { 1, 5 }, { 2, 4 }, { 2, 5 },
@@ -52,34 +52,34 @@ public class Hex {
             { 6, 2 }, { 6, 3 }, { 7, 2 }, { 7, 3 }, { 8, 2 }, { 8, 3 }, 
             { 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 }, 
     };
-
-    public int[] num_to_pos(int num) {
-        int[] res = { -1, -1 };
-        for (int i = 0; i < this.plateau.length; i++) {
-            System.out.println("i : " + i);
-            for (int j = 0; j < this.plateau[i].length; j++) {
-                if (i == 0) {
-                    if (j == num) {
-                        res = plateau[i];
-                        return res;
-                    }
-                    continue;
-                }
-                if ((int) j + (i % 2 == 0 ? ((i / 2) * 6) + ((i - (i / 2) + 1) * 6)
-                        : (Math.floor((double) i / 2) * 6) + (Math.ceil((double) i / 2) * 6)) == num) {
-                    res = plateau[i][j];
-                    return res;
-                }
-            }
-        }
-        return res;
-    }
+    public int[][][] plateau_adj = {
+        {{ 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 }},
+        {{ 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 2 }, { 2, 3 }},
+        {{ 0, 4 }, { 0, 5 }, { 1, 4 }, { 1, 5 }, { 2, 4 }, { 2, 5 }},
+        {{ 3, 0 }, { 3, 1 },{ 4, 0 }, { 5, 0 }, { 5, 1 }},
+        {{ 3, 2 }, { 3, 3 }, { 4, 0 },{ 4, 0 }, { 5, 2 }, { 5, 3 }},
+        {{ 3, 4 }, { 3, 5 }, { 4, 0 },{ 5, 4 }, { 5, 5 }},
+        {{ 6, 0 }, { 6, 1 }, { 7, 0 }, { 7, 1 }, { 8, 0 }, { 8, 1 }}, 
+        {{ 6, 2 }, { 6, 3 }, { 7, 2 }, { 7, 3 }, { 8, 2 }, { 8, 3 }}, 
+        {{ 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 }}, 
+};
 
     /**
      * @return Hex[]
+     * renvoi {{id_sector,id_hex},{...}} des hexagones adjacents
      */
     public int[][] getAdjacents() {
-        return adjacents;
+        return adjacents; 
+    }
+
+    public boolean res_contains(List<int[]> res,int id_sec,int id_hex){
+        boolean[] answ={false};
+        res.forEach((elt)->{
+            if(elt[0]==id_sec && elt[1]==id_hex){
+                answ[0]=true;
+            }
+        });
+        return answ[0];
     }
 
     /**
@@ -100,45 +100,51 @@ public class Hex {
             res.add(new int[] { 7, 0 });
             res.add(new int[] { 7, 1 });
             this.adjacents = res.toArray(new int[0][]);
+            return;
         }
-        for (int i = 0; i < this.plateau.length; i++) {
-            for (int j = 0; j < this.plateau[i].length; j++) {
-                if (this.plateau[i][j][0] == id_sector && this.plateau[i][j][1] == id) {
+        for (int i = 0; i < this.plateau_adj.length; i++) {
+            for (int j = 0; j < this.plateau_adj[i].length; j++) {
+                if (this.plateau_adj[i][j][0] == id_sector && this.plateau_adj[i][j][1] == id) {
 
                     System.out.println("coucou");
-                    int is_corner = 0;
                     try {
-                        res.add(this.plateau[i][j - 1]);
+                        if (!res_contains(res,this.plateau_adj[i][j - 1][0],this.plateau_adj[i][j - 1][1]))
+                        {res.add(this.plateau_adj[i][j - 1]);}
                     } catch (Exception e) {
                         // System.out.println(e);
                         // System.out.println("res.add(adj[i][j-1]);");
                     }
                     try {
-                        res.add(this.plateau[i][j + 1]);
+                        if (!res_contains(res,this.plateau_adj[i][j + 1][0],this.plateau_adj[i][j + 1][1]))
+                        {res.add(this.plateau_adj[i][j + 1]);}
                     } catch (Exception e) {
                         // System.out.println(e);
                         // System.out.println("res.add(adj[i][j+1]);");
                     }
                     try {
-                        res.add(this.plateau[i + 1][i % 2 == 0 ? j - 1 : j]);
+                        if (!res_contains(res,this.plateau_adj[i + 1][i % 2 == 0 ? j - 1 : j][0],this.plateau_adj[i + 1][i % 2 == 0 ? j - 1 : j][1]))
+                        {res.add(this.plateau_adj[i + 1][i % 2 == 0 ? j - 1 : j]);}
                     } catch (Exception e) {
                         // System.out.println(e);
                         // System.out.println("res.add(adj[i+1][i%2==0?j-1:j]);");
                     }
                     try {
-                        res.add(this.plateau[i + 1][i % 2 == 0 ? j : j + 1]);
+                        if(!res_contains(res,this.plateau_adj[i + 1][i % 2 == 0 ? j : j + 1][0],this.plateau_adj[i + 1][i % 2 == 0 ? j : j + 1][1]))
+                        {res.add(this.plateau_adj[i + 1][i % 2 == 0 ? j : j + 1]);}
                     } catch (Exception e) {
                         // System.out.println(e);
                         // System.out.println("res.add(adj[i+1][i%2==0?j:j+1]);");
                     }
                     try {
-                        res.add(this.plateau[i - 1][i % 2 == 0 ? j - 1 : j]);
+                        if(!res_contains(res,this.plateau_adj[i - 1][i % 2 == 0 ? j - 1 : j][0],this.plateau_adj[i - 1][i % 2 == 0 ? j - 1 : j][1]))
+                        {res.add(this.plateau_adj[i - 1][i % 2 == 0 ? j - 1 : j]);}
                     } catch (Exception e) {
                         // System.out.println(e);
                         // System.out.println("res.add(adj[i-1][i%2==0?j-1:j]);");
                     }
                     try {
-                        res.add(this.plateau[i - 1][i % 2 == 0 ? j : j + 1]);
+                        if(!res_contains(res,this.plateau_adj[i - 1][i % 2 == 0 ? j : j + 1][0],this.plateau_adj[i - 1][i % 2 == 0 ? j : j + 1][1]))
+                        {res.add(this.plateau_adj[i - 1][i % 2 == 0 ? j : j + 1]);}
                     } catch (Exception e) {
                         // System.out.println(e);
                         // System.out.println("res.add(adj[i-1][i%2==0?j:j+1]);");
@@ -159,13 +165,17 @@ public class Hex {
     }
 
     public static void main(String[] args) {
+        System.out.println("null");
         Hex hex = new Hex(0);
-        hex.setId(1);
-        hex.setId_sector(0);
+        hex.setId(4);
+        hex.setId_sector(5);
         hex.setAdjacents();
-
-        System.out.println(hex.num_to_pos(10)[0]);
-        System.out.println(hex.num_to_pos(10)[1]);
+        int[][] hexs=hex.getAdjacents();
+        for (int i=0;i<hexs.length;i++){
+            
+        System.out.print(hexs[i][0]);
+        System.out.println(hexs[i][1]);
+        }
         // System.out.print(hex.getAdjacents()[0][0]);
 
         // System.out.println(hex.getAdjacents()[0][1]);
