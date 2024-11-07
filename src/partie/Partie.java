@@ -1,7 +1,6 @@
-import java.io.Console;
+package partie;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -282,6 +281,8 @@ public class Partie {
      * @param args Les arguments de la ligne de commande.
      */
     public static void main(String[] args) {
+        // pour générer la javadoc (se placer dans /src): 
+        // javadoc -d ../doc partie joueurs app plateau vaisseaux nom_packkages...
         System.out.println();
         Partie partie = Partie.getInstance();
         partie.setup();
