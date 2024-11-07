@@ -3,41 +3,135 @@ package plateau;
 import java.util.ArrayList;
 import java.util.List;
 
+import joueurs.Joueur;
+import vaisseaux.Ship;
+
+/**
+ * La classe Hex représente un hexagone dans le plateau de jeu.
+ */
 public class Hex {
-    private int planet_contained;
+    /**
+     * Le type de planète contenue dans l'hexagone.
+     */
+    private int planetContained;
+    /**
+     * L'identifiant de l'hexagone.
+     */
     private int id;
-    private int id_sector;
+    /**
+     * L'identifiant du secteur auquel appartient l'hexagone.
+     */
+    private int idSector;
+    /**
+     * La liste des vaisseaux présents dans l'hexagone.
+     */
+    private List<Ship> ships = new ArrayList<>();
 
     /**
-     * @return int
+     * Constructeur de la classe Hex.
+     *
+     * @param planetContained Le type de planète contenues dans l'hexagone.
      */
-    public int getId_sector() {
-        return id_sector;
+    public Hex(int planetContained) {
+        this.planetContained = planetContained;
     }
 
     /**
-     * @param id_sector
+     * Obtient la liste des vaisseaux présents dans l'hexagone.
+     *
+     * @return La liste des vaisseaux.
      */
-    public void setId_sector(int id_sector) {
-        this.id_sector = id_sector;
+    public List<Ship> getShips() {
+        return this.ships;
     }
 
+    /**
+     * Ajoute un certain nombre de vaisseaux à l'hexagone.
+     *
+     * @param nbShips Le nombre de vaisseaux à ajouter.
+     * @param joueur Le joueur auquel appartiennent les vaisseaux.
+     */
+    public void addShips(int nbShips, Joueur joueur) {
+        for (int i = 0; i < nbShips; i++) {
+            this.ships.add(new Ship(joueur));
+        }
+    }
+
+    /**
+     * Supprime un certain nombre de vaisseaux de l'hexagone.
+     *
+     * @param n Le nombre de vaisseaux à supprimer.
+     */
+    public void deleteShips(int n) {
+        for (int i = 0; i < n; i++) {
+            if (!ships.isEmpty()) {
+                ships.remove(ships.size() - 1);
+            }
+        }
+    }
+
+    /**
+     * Déplace un certain nombre de vaisseaux vers un autre hexagone.
+     *
+     * @param sector Le tableau des secteurs.
+     * @param nbShips Le nombre de vaisseaux à déplacer.
+     * @param idHexMvg L'identifiant de l'hexagone de destination.
+     * @return Le tableau des secteurs mis à jour.
+     */
+    public Sector[] moveShips(Sector[] sector, int nbShips, int idHexMvg) {
+        int[] pos = Hex.plateau[idHexMvg];
+        if (this.ships.size() >= nbShips) {
+            this.deleteShips(nbShips);
+            sector[pos[0]].hex[pos[1]].addShips(nbShips, this.ships.get(0).joueur);
+        } else {
+            System.out.println("Le système ne contient pas assez de vaisseaux");
+        }
+        return sector;
+    }
+
+    /**
+     * Obtient l'identifiant du secteur de l'hexagone.
+     *
+     * @return L'identifiant du secteur.
+     */
+    public int getIdSector() {
+        return idSector;
+    }
+
+    /**
+     * Définit l'identifiant du secteur de l'hexagone.
+     *
+     * @param idSector L'identifiant du secteur.
+     */
+    public void setIdSector(int idSector) {
+        this.idSector = idSector;
+    }
+
+    /**
+     * Obtient l'identifiant de l'hexagone.
+     *
+     * @return L'identifiant de l'hexagone.
+     */
     public int getId() {
         return id;
     }
 
     /**
-     * @param id
+     * Définit l'identifiant de l'hexagone.
+     *
+     * @param id L'identifiant de l'hexagone.
      */
     public void setId(int id) {
         this.id = id;
     }
 
     /**
-     * @return int
+     * Obtient le nombre de planètes contenues dans l'hexagone.
+     *
+     * @return Le nombre de planètes contenues.
      */
-    public int getPlanet_contained() {
-        return planet_contained;
+    public int getPlanetContained() {
+        return planetContained;
     }
 
     int[][] adjacents;
@@ -48,47 +142,55 @@ public class Hex {
             { 3, 0 }, { 3, 1 }, { 5, 0 }, { 5, 1 },
             { 3, 2 }, { 3, 3 }, { 4, 0 }, { 5, 2 }, { 5, 3 },
             { 3, 4 }, { 3, 5 }, { 5, 4 }, { 5, 5 },
-            { 6, 0 }, { 6, 1 }, { 7, 0 }, { 7, 1 }, { 8, 0 }, { 8, 1 }, 
-            { 6, 2 }, { 6, 3 }, { 7, 2 }, { 7, 3 }, { 8, 2 }, { 8, 3 }, 
-            { 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 }, 
+            { 6, 0 }, { 6, 1 }, { 7, 0 }, { 7, 1 }, { 8, 0 }, { 8, 1 },
+            { 6, 2 }, { 6, 3 }, { 7, 2 }, { 7, 3 }, { 8, 2 }, { 8, 3 },
+            { 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 },
     };
-    public int[][][] plateau_adj = {
-        {{ 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 }},
-        {{ 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 2 }, { 2, 3 }},
-        {{ 0, 4 }, { 0, 5 }, { 1, 4 }, { 1, 5 }, { 2, 4 }, { 2, 5 }},
-        {{ 3, 0 }, { 3, 1 },{ 4, 0 }, { 5, 0 }, { 5, 1 }},
-        {{ 3, 2 }, { 3, 3 }, { 4, 0 },{ 4, 0 }, { 5, 2 }, { 5, 3 }},
-        {{ 3, 4 }, { 3, 5 }, { 4, 0 },{ 5, 4 }, { 5, 5 }},
-        {{ 6, 0 }, { 6, 1 }, { 7, 0 }, { 7, 1 }, { 8, 0 }, { 8, 1 }}, 
-        {{ 6, 2 }, { 6, 3 }, { 7, 2 }, { 7, 3 }, { 8, 2 }, { 8, 3 }}, 
-        {{ 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 }}, 
-};
+    public int[][][] plateauAdj = {
+            { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 } },
+            { { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 2 }, { 2, 3 } },
+            { { 0, 4 }, { 0, 5 }, { 1, 4 }, { 1, 5 }, { 2, 4 }, { 2, 5 } },
+            { { 3, 0 }, { 3, 1 }, { 4, 0 }, { 5, 0 }, { 5, 1 } },
+            { { 3, 2 }, { 3, 3 }, { 4, 0 }, { 4, 0 }, { 5, 2 }, { 5, 3 } },
+            { { 3, 4 }, { 3, 5 }, { 4, 0 }, { 5, 4 }, { 5, 5 } },
+            { { 6, 0 }, { 6, 1 }, { 7, 0 }, { 7, 1 }, { 8, 0 }, { 8, 1 } },
+            { { 6, 2 }, { 6, 3 }, { 7, 2 }, { 7, 3 }, { 8, 2 }, { 8, 3 } },
+            { { 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 } },
+    };
 
     /**
-     * @return Hex[]
-     * renvoi {{id_sector,id_hex},{...}} des hexagones adjacents
+     * Obtient les hexagones adjacents.
+     *
+     * @return Un tableau d'hexagones adjacents.
      */
     public int[][] getAdjacents() {
-        return adjacents; 
+        return adjacents;
     }
 
-    public boolean res_contains(List<int[]> res,int id_sec,int id_hex){
-        boolean[] answ={false};
-        res.forEach((elt)->{
-            if(elt[0]==id_sec && elt[1]==id_hex){
-                answ[0]=true;
+    /**
+     * Vérifie si un hexagone est contenu dans une liste d'hexagones.
+     *
+     * @param res La liste d'hexagones.
+     * @param idSec L'identifiant du secteur.
+     * @param idHex L'identifiant de l'hexagone.
+     * @return true si l'hexagone est contenu dans la liste, false sinon.
+     */
+    public boolean resContains(List<int[]> res, int idSec, int idHex) {
+        boolean[] answ = { false };
+        res.forEach((elt) -> {
+            if (elt[0] == idSec && elt[1] == idHex) {
+                answ[0] = true;
             }
         });
         return answ[0];
     }
 
     /**
-     * @param sectors
+     * Définit les hexagones adjacents.
      */
     public void setAdjacents() {
-
         List<int[]> res = new ArrayList<int[]>();
-        if (this.id == 0 && this.id_sector == 4) {
+        if (this.id == 0 && this.idSector == 4) {
             res.add(new int[] { 3, 1 });
             res.add(new int[] { 3, 3 });
             res.add(new int[] { 3, 5 });
@@ -102,91 +204,66 @@ public class Hex {
             this.adjacents = res.toArray(new int[0][]);
             return;
         }
-        for (int i = 0; i < this.plateau_adj.length; i++) {
-            for (int j = 0; j < this.plateau_adj[i].length; j++) {
-                if (this.plateau_adj[i][j][0] == id_sector && this.plateau_adj[i][j][1] == id) {
-
+        for (int i = 0; i < this.plateauAdj.length; i++) {
+            for (int j = 0; j < this.plateauAdj[i].length; j++) {
+                if (this.plateauAdj[i][j][0] == idSector && this.plateauAdj[i][j][1] == id) {
                     System.out.println("coucou");
                     try {
-                        if (!res_contains(res,this.plateau_adj[i][j - 1][0],this.plateau_adj[i][j - 1][1]))
-                        {res.add(this.plateau_adj[i][j - 1]);}
+                        if (!resContains(res, this.plateauAdj[i][j - 1][0], this.plateauAdj[i][j - 1][1])) {
+                            res.add(this.plateauAdj[i][j - 1]);
+                        }
                     } catch (Exception e) {
-                        // System.out.println(e);
-                        // System.out.println("res.add(adj[i][j-1]);");
                     }
                     try {
-                        if (!res_contains(res,this.plateau_adj[i][j + 1][0],this.plateau_adj[i][j + 1][1]))
-                        {res.add(this.plateau_adj[i][j + 1]);}
+                        if (!resContains(res, this.plateauAdj[i][j + 1][0], this.plateauAdj[i][j + 1][1])) {
+                            res.add(this.plateauAdj[i][j + 1]);
+                        }
                     } catch (Exception e) {
-                        // System.out.println(e);
-                        // System.out.println("res.add(adj[i][j+1]);");
                     }
                     try {
-                        if (!res_contains(res,this.plateau_adj[i + 1][i % 2 == 0 ? j - 1 : j][0],this.plateau_adj[i + 1][i % 2 == 0 ? j - 1 : j][1]))
-                        {res.add(this.plateau_adj[i + 1][i % 2 == 0 ? j - 1 : j]);}
+                        if (!resContains(res, this.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j][0],
+                                this.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j][1])) {
+                            res.add(this.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j]);
+                        }
                     } catch (Exception e) {
-                        // System.out.println(e);
-                        // System.out.println("res.add(adj[i+1][i%2==0?j-1:j]);");
                     }
                     try {
-                        if(!res_contains(res,this.plateau_adj[i + 1][i % 2 == 0 ? j : j + 1][0],this.plateau_adj[i + 1][i % 2 == 0 ? j : j + 1][1]))
-                        {res.add(this.plateau_adj[i + 1][i % 2 == 0 ? j : j + 1]);}
+                        if (!resContains(res, this.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1][0],
+                                this.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1][1])) {
+                            res.add(this.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1]);
+                        }
                     } catch (Exception e) {
-                        // System.out.println(e);
-                        // System.out.println("res.add(adj[i+1][i%2==0?j:j+1]);");
                     }
                     try {
-                        if(!res_contains(res,this.plateau_adj[i - 1][i % 2 == 0 ? j - 1 : j][0],this.plateau_adj[i - 1][i % 2 == 0 ? j - 1 : j][1]))
-                        {res.add(this.plateau_adj[i - 1][i % 2 == 0 ? j - 1 : j]);}
+                        if (!resContains(res, this.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j][0],
+                                this.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j][1])) {
+                            res.add(this.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j]);
+                        }
                     } catch (Exception e) {
-                        // System.out.println(e);
-                        // System.out.println("res.add(adj[i-1][i%2==0?j-1:j]);");
                     }
                     try {
-                        if(!res_contains(res,this.plateau_adj[i - 1][i % 2 == 0 ? j : j + 1][0],this.plateau_adj[i - 1][i % 2 == 0 ? j : j + 1][1]))
-                        {res.add(this.plateau_adj[i - 1][i % 2 == 0 ? j : j + 1]);}
+                        if (!resContains(res, this.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1][0],
+                                this.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1][1])) {
+                            res.add(this.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1]);
+                        }
                     } catch (Exception e) {
-                        // System.out.println(e);
-                        // System.out.println("res.add(adj[i-1][i%2==0?j:j+1]);");
                     }
-
                 }
-
             }
         }
         this.adjacents = res.toArray(new int[0][]);
     }
 
     /**
-     * @param planet_contained
+     * Juste pour faire des tests
+     *
+     * @param args Les arguments de la ligne de commande.
      */
-    public Hex(int planet_contained) {
-        this.planet_contained = planet_contained;
-    }
-
     public static void main(String[] args) {
         System.out.println("null");
         Hex hex = new Hex(0);
         hex.setId(4);
-        hex.setId_sector(5);
+        hex.setIdSector(5);
         hex.setAdjacents();
-        int[][] hexs=hex.getAdjacents();
-        for (int i=0;i<hexs.length;i++){
-            
-        System.out.print(hexs[i][0]);
-        System.out.println(hexs[i][1]);
-        }
-        // System.out.print(hex.getAdjacents()[0][0]);
-
-        // System.out.println(hex.getAdjacents()[0][1]);
-        // System.out.print(hex.getAdjacents()[1][0]);
-        // System.out.println(hex.getAdjacents()[1][1]);
-        // System.out.print(hex.getAdjacents()[2][0]);
-        // System.out.println(hex.getAdjacents()[2][1]);
-        // System.out.print(hex.getAdjacents()[3][0]);
-        // System.out.println(hex.getAdjacents()[3][1]);
-        // System.out.print(hex.getAdjacents()[4][0]);
-        // System.out.println(hex.getAdjacents()[4][1]);
-        System.out.println("null");
     }
 }

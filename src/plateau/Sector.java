@@ -1,18 +1,12 @@
 package plateau;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import joueurs.Joueur;
+
 public class Sector {
-    private Hex[] hex;
-    public void setHex(Hex[] hex) {
-        this.hex = hex;
-    }
-
-
-    public Hex[] getHex() {
-        return hex;
-    }
-
+    public Hex[] hex;
 
     /**
      * @param list
@@ -24,7 +18,7 @@ public class Sector {
      * @param hexDB
      * @return List<Hex[]>
      */
-    public static List<Hex[]> retourner_carte(List<plateau.Hex[]> list, plateau.Hex[] hexGH, plateau.Hex[] hexMH,
+    public static List<Hex[]> retournerCarte(List<plateau.Hex[]> list, plateau.Hex[] hexGH, plateau.Hex[] hexMH,
             plateau.Hex[] hexDH,
             plateau.Hex[] hexGB, plateau.Hex[] hexMB, plateau.Hex[] hexDB) {
         if (list.subList(list.size() - 3, list.size()).contains(hexGH)) {
@@ -110,5 +104,17 @@ public class Sector {
 
     public Sector(Hex[] hex) {
         this.hex = hex;
+    }
+
+    public List<Joueur> isOccupied() {
+        List<Joueur> joueur = new ArrayList<>();
+        for (int i = 0; i < this.hex.length; i++) {
+            if (!this.hex[i].getShips().isEmpty()) {
+                if (!joueur.contains(this.hex[i].getShips().get(0).joueur)) {
+                    joueur.add(this.hex[i].getShips().get(0).joueur);
+                }
+            }
+        }
+        return joueur;
     }
 }
