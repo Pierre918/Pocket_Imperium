@@ -1,16 +1,16 @@
 package partie;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-
+import javax.swing.*;
+import joueurs.BotRandom;
 import joueurs.Joueur;
 import joueurs.VraiJoueur;
 import plateau.Hex;
@@ -80,7 +80,7 @@ public class Partie {
         };
         try {
             BufferedImage image = ImageIO.read(
-                    new File("D:\\Documents\\documents Pierre\\UTT\\ISI\\ISI1\\LO02\\projet\\projet_lo2\\plateau.PNG"));
+                    new File("plateau.PNG"));
 
             Graphics g = image.getGraphics();
             g.setFont(new Font("Arial", Font.BOLD, 20));
@@ -297,15 +297,15 @@ public class Partie {
 
         if (nom == 1) {
             // définir 2 joueur virtuel ici
-            partie.joueurs = Arrays.asList(new VraiJoueur(Color.GREEN), new VraiJoueur(Color.YELLOW),
-                    new VraiJoueur(Color.BLUE));
+            partie.joueurs = Arrays.asList(new BotRandom(Color.GREEN, new  ArrayList<plateau.Hex>()), new BotRandom(Color.YELLOW,  new  ArrayList<plateau.Hex>()),
+                    new VraiJoueur(Color.BLUE,  new  ArrayList<plateau.Hex>()));
         } else if (nom == 2) {
             // définir un joueur virtuel ici
-            partie.joueurs = Arrays.asList(new VraiJoueur(Color.GREEN), new VraiJoueur(Color.YELLOW),
-                    new VraiJoueur(Color.BLUE));
+            partie.joueurs = Arrays.asList(new BotRandom(Color.GREEN, new  ArrayList<plateau.Hex>()), new VraiJoueur(Color.YELLOW,  new  ArrayList<plateau.Hex>()),
+                    new VraiJoueur(Color.BLUE,  new  ArrayList<plateau.Hex>()));
         } else {
-            partie.joueurs = Arrays.asList(new VraiJoueur(Color.GREEN), new VraiJoueur(Color.YELLOW),
-                    new VraiJoueur(Color.BLUE));
+            partie.joueurs = Arrays.asList(new VraiJoueur(Color.GREEN, new  ArrayList<plateau.Hex>()), new VraiJoueur(Color.YELLOW,  new  ArrayList<plateau.Hex>()),
+                    new VraiJoueur(Color.BLUE,  new  ArrayList<plateau.Hex>()));
         }
         Collections.shuffle(partie.joueurs);
 
@@ -314,16 +314,35 @@ public class Partie {
 
         Joueur j = null;
         for (int i = 0; i < partie.joueurs.size(); i++) {
-            if (partie.joueurs.get(i) instanceof VraiJoueur) {
-                j = (VraiJoueur) j;
-            }
+            
             // faire les autres cas des types de joueurs
 
             j = partie.joueurs.get(i);
+            if (partie.joueurs.get(i) instanceof VraiJoueur) {
+                j = (VraiJoueur) j;
+            } else {
+                j = (BotRandom) j;
+            }
             System.out.print("Joueur " + (partie.joueurs.get(i).getColor() == Color.BLUE ? "bleu,"
                     : partie.joueurs.get(i).getColor() == Color.GREEN ? "vert," : "jaune,"));
             j.chooseStrat(scanner);
             partie.joueurs.set(i, j);
         }
-    }
+
+        int count = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int k = 0; k < 3; k++) {
+                for (int l = 0; l < 3; l++) {
+                    if (partie.joueurs.get(k) != partie.joueurs.get(l)){
+                        if (partie.joueurs.get(k).getCommandCards()[i] == partie.joueurs.get(l).getCommandCards()[i]){
+                            count++;
+                        }   
+                    }
+                }
+                partie.joueurs.get(k).jouerAction(i, count, scanner);
+                count = 0;
+                
+            }
+        }
+}
 }

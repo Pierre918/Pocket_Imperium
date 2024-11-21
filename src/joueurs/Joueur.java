@@ -3,6 +3,7 @@ package joueurs;
 import java.awt.Color;
 import java.util.List;
 import java.util.Scanner;
+import partie.Partie;
 import plateau.Hex;
 
 /**
@@ -32,15 +33,14 @@ public abstract class Joueur {
      */
     private CommandCards[] strat={null,null,null};
 
+    public CommandCards[] getCommandCards(){
+        return strat;
+    }
     /**
-     * Les secteurs contrôlés par le joueur.
+     * Les Hex contrôlés par le joueur.
      */
     protected List<Hex> controlledHexes;
 
-    /**
-     * La stratégie actuelle du joueur.
-     */
-    private StrategieJoueur strategie;
 
     /**
      * Constructeur de la classe Joueur.
@@ -412,25 +412,21 @@ public abstract class Joueur {
      */
     public abstract void chooseStrat(Scanner scanner);
 
-    /**
-     * Définit la stratégie actuelle du joueur.
-     *
-     * @param strategie La stratégie à utiliser.
-     */
-    public void setStrategie(StrategieJoueur strategie) {
-        this.strategie = strategie;
-    }
 
     /**
      * Exécute une action selon la stratégie du joueur.
      *
-     * @param action L'action à exécuter.
      */
-    public void jouerAction(CommandCards action) {
-        if (strategie != null) {
-            strategie.executerAction(action);
-        } else {
-            System.out.println("Aucune stratégie définie pour ce joueur.");
+    public void jouerAction(int i, int count, Scanner scanner) {
+        Partie partie = Partie.getInstance();
+        if(this.strat[i] == CommandCards.EXPAND){
+            expand(count, scanner);
+        }
+        else if(this.strat[i] == CommandCards.EXPLORE){
+            explore(count, scanner);
+        }
+        else if(this.strat[i] == CommandCards.EXTERMINATE){
+            exterminate(count, scanner);
         }
     }
 
