@@ -55,6 +55,33 @@ public abstract class Joueur {
         this.controlledHexes = controlledHexes;
 
     }
+    
+    public void addControlledHex(Hex hex) {
+        // Vérifie si l'hexagone est déjà dans la liste des hexagones contrôlés
+        if (!controlledHexes.contains(hex)) {
+            // Définit ce joueur comme contrôleur de l'hexagone
+            hex.setOwner(this);
+            controlledHexes.add(hex);
+            System.out.println("Hex ID: " + hex.getId() + " ajouté à la liste des hexagones contrôlés.");
+        } else {
+            System.out.println("Hex ID: " + hex.getId() + " est déjà contrôlé par ce joueur.");
+        }
+    }
+    
+    public void removeControlledHex(Hex hex) {
+        // Vérifie si l'hexagone est contrôlé par ce joueur
+        if (controlledHexes.contains(hex)) {
+            hex.setOwner(null); // Retire le contrôle de l'hexagone
+            controlledHexes.remove(hex);
+            System.out.println("Hex ID: " + hex.getId() + " retiré de la liste des hexagones contrôlés.");
+        } else {
+            System.out.println("Hex ID: " + hex.getId() + " n'est pas contrôlé par ce joueur.");
+        }
+    }
+
+    public boolean controlsHex(Hex hex) {
+        return controlledHexes.contains(hex);
+    }
 
     /**
      * Exécute l'action EXPAND, représentant l'extension du joueur dans les hexagones qu'il contrôle.
@@ -65,7 +92,8 @@ public abstract class Joueur {
      */
     public void expand(int playersChoosingExpand, Scanner scanner) {
         int shipsToAdd;
-
+        System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
+        : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXPAND.");
         // Détermine le nombre de vaisseaux à ajouter en fonction du nombre de joueurs ayant choisi EXPAND
         shipsToAdd = switch (playersChoosingExpand) {
             case 1 -> 3;
@@ -88,7 +116,8 @@ public abstract class Joueur {
                 System.out.println("Hex ID: " + hex.getId() + " - Planète Contenue: " + hex.getPlanetContained());
             }
 
-            System.out.println("Entrez l'ID de l'hexagone où vous souhaitez ajouter un vaisseau : ");
+            System.out.println((this.getColor() == Color.BLUE ? "bleu"
+            : this.getColor() == Color.GREEN ? "vert" : "jaune") + "Entrez l'ID de l'hexagone où vous souhaitez ajouter un vaisseau : ");
             int hexId = scanner.nextInt();
 
             // Trouve l'hexagone correspondant
@@ -113,7 +142,8 @@ public abstract class Joueur {
      */
     public void explore(int playersChoosingExplore, Scanner scanner) {
         int fleetsToMove;
-
+        System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
+        : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXPLORE.");
         // Détermine le nombre de flottes pouvant être déplacées en fonction des joueurs ayant choisi Explore
         fleetsToMove = switch (playersChoosingExplore) {
             case 1 -> 3;
@@ -242,6 +272,8 @@ public abstract class Joueur {
     public void exterminate(int playersChoosingExterminate, Scanner scanner) {
         int systemsToInvade;
 
+        System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
+        : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXTERMINATE.");
         // Détermine le nombre de systèmes pouvant être envahis en fonction des joueurs ayant choisi Exterminate
         systemsToInvade = switch (playersChoosingExterminate) {
             case 1 -> 3;

@@ -36,6 +36,9 @@ public class Hex {
         this.planetContained = planetContained;
     }
 
+    private Joueur owner; // Joueur qui contrôle l'hexagone
+
+
     /**
      * Obtient la liste des vaisseaux présents dans l'hexagone.
      *
@@ -57,6 +60,46 @@ public class Hex {
         }
     }
 
+    /**
+     * Retourne le joueur qui contrôle cet hexagone.
+     *
+     * @return Le joueur contrôlant l'hexagone, ou null s'il est inoccupé.
+     */
+    public Joueur getOwner() {
+        return owner;
+    }
+
+    /**
+     * Définit le joueur qui contrôle cet hexagone.
+     *
+     * @param owner Le joueur à définir comme contrôleur.
+     */
+    public void setOwner(Joueur owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * Vérifie si un joueur contrôle cet hexagone.
+     *
+     * @param joueur Le joueur à vérifier.
+     * @return true si le joueur contrôle l'hexagone, false sinon.
+     */
+    public boolean isControlledBy(Joueur joueur) {
+        return owner != null && owner.equals(joueur);
+    }
+
+    /**
+     * Met à jour le contrôle de l'hexagone en fonction des vaisseaux présents.
+     */
+    public void updateControl() {
+        if (ships.isEmpty()) {
+            owner = null; // Pas de contrôle si aucun vaisseau
+        } else {
+            Joueur potentialOwner = ships.get(0).getOwner();
+            boolean allSameOwner = ships.stream().allMatch(ship -> ship.getOwner().equals(potentialOwner));
+            owner = allSameOwner ? potentialOwner : null; // Contrôle uniquement si tous les vaisseaux appartiennent au même joueur
+        }
+    }
     /**
      * Supprime un certain nombre de vaisseaux de l'hexagone.
      *
