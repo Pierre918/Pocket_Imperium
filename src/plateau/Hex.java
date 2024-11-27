@@ -1,5 +1,6 @@
 package plateau;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +37,6 @@ public class Hex {
         this.planetContained = planetContained;
     }
 
-    private Joueur owner; // Joueur qui contrôle l'hexagone
-
-
     /**
      * Obtient la liste des vaisseaux présents dans l'hexagone.
      *
@@ -52,30 +50,24 @@ public class Hex {
      * Ajoute un certain nombre de vaisseaux à l'hexagone.
      *
      * @param nbShips Le nombre de vaisseaux à ajouter.
-     * @param joueur Le joueur auquel appartiennent les vaisseaux.
+     * @param joueur  Le joueur auquel appartiennent les vaisseaux.
      */
     public void addShips(int nbShips, Joueur joueur) {
+        if (!this.ships.isEmpty()) {
+            if (this.ships.get(0).joueur != joueur) {
+                if (this.ships.size() > nbShips) {
+                    this.deleteShips(this.ships.size() - nbShips);
+                    return;
+                }else{
+                    this.ships = new ArrayList<>();
+                    nbShips = nbShips - this.ships.size();
+                }
+            }
+        }     
         for (int i = 0; i < nbShips; i++) {
             this.ships.add(new Ship(joueur));
         }
-    }
 
-    /**
-     * Retourne le joueur qui contrôle cet hexagone.
-     *
-     * @return Le joueur contrôlant l'hexagone, ou null s'il est inoccupé.
-     */
-    public Joueur getOwner() {
-        return owner;
-    }
-
-    /**
-     * Définit le joueur qui contrôle cet hexagone.
-     *
-     * @param owner Le joueur à définir comme contrôleur.
-     */
-    public void setOwner(Joueur owner) {
-        this.owner = owner;
     }
 
     /**
@@ -85,21 +77,12 @@ public class Hex {
      * @return true si le joueur contrôle l'hexagone, false sinon.
      */
     public boolean isControlledBy(Joueur joueur) {
-        return owner != null && owner.equals(joueur);
+        if (!this.ships.isEmpty()) {
+            return this.ships.get(0).joueur == joueur;
+        }
+        return false;
     }
 
-    /**
-     * Met à jour le contrôle de l'hexagone en fonction des vaisseaux présents.
-     */
-    public void updateControl() {
-        if (ships.isEmpty()) {
-            owner = null; // Pas de contrôle si aucun vaisseau
-        } else {
-            Joueur potentialOwner = ships.get(0).getOwner();
-            boolean allSameOwner = ships.stream().allMatch(ship -> ship.getOwner().equals(potentialOwner));
-            owner = allSameOwner ? potentialOwner : null; // Contrôle uniquement si tous les vaisseaux appartiennent au même joueur
-        }
-    }
     /**
      * Supprime un certain nombre de vaisseaux de l'hexagone.
      *
@@ -116,8 +99,8 @@ public class Hex {
     /**
      * Déplace un certain nombre de vaisseaux vers un autre hexagone.
      *
-     * @param sector Le tableau des secteurs.
-     * @param nbShips Le nombre de vaisseaux à déplacer.
+     * @param sector   Le tableau des secteurs.
+     * @param nbShips  Le nombre de vaisseaux à déplacer.
      * @param idHexMvg L'identifiant de l'hexagone de destination.
      * @return Le tableau des secteurs mis à jour.
      */
@@ -201,6 +184,15 @@ public class Hex {
             { { 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 } },
     };
 
+
+    public static int findIndex(int[][] array, int[] target) {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i][0] == target[0] && array[i][1] == target[1]) {
+                return i;
+            }
+        }
+        return -1;
+    }
     /**
      * Obtient les hexagones adjacents.
      *
@@ -213,7 +205,7 @@ public class Hex {
     /**
      * Vérifie si un hexagone est contenu dans une liste d'hexagones.
      *
-     * @param res La liste d'hexagones.
+     * @param res   La liste d'hexagones.
      * @param idSec L'identifiant du secteur.
      * @param idHex L'identifiant de l'hexagone.
      * @return true si l'hexagone est contenu dans la liste, false sinon.
@@ -250,7 +242,6 @@ public class Hex {
         for (int i = 0; i < this.plateauAdj.length; i++) {
             for (int j = 0; j < this.plateauAdj[i].length; j++) {
                 if (this.plateauAdj[i][j][0] == idSector && this.plateauAdj[i][j][1] == id) {
-                    System.out.println("coucou");
                     try {
                         if (!resContains(res, this.plateauAdj[i][j - 1][0], this.plateauAdj[i][j - 1][1])) {
                             res.add(this.plateauAdj[i][j - 1]);
@@ -295,6 +286,7 @@ public class Hex {
             }
         }
         this.adjacents = res.toArray(new int[0][]);
+        System.out.println(this.getId()+" : "+this.adjacents[0][0]+","+this.adjacents[0][1]);
     }
 
     /**
@@ -305,8 +297,8 @@ public class Hex {
     public static void main(String[] args) {
         System.out.println("null");
         Hex hex = new Hex(0);
-        hex.setId(4);
-        hex.setIdSector(5);
-        hex.setAdjacents();
+        joueurs.VraiJoueur j = new joueurs.VraiJoueur(Color.BLUE);
+        hex.addShips(1, j);
+        System.out.println(hex.isControlledBy(j));
     }
 }

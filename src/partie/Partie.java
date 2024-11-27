@@ -1,4 +1,5 @@
 package partie;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -10,7 +11,10 @@ import java.util.List;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import joueurs.BotOffensif;
 import joueurs.BotRandom;
+import joueurs.CommandCards;
 import joueurs.Joueur;
 import joueurs.VraiJoueur;
 import plateau.Hex;
@@ -47,11 +51,6 @@ public class Partie {
      */
     private Partie() {
     }
-
-    /**
-     * Compteur global pour les IDs d'hexagones.
-     */
-    private static int globalHexId = 0; // Compteur global pour les IDs d'hexagones
 
     /**
      * Méthode publique pour obtenir l'instance unique de la classe Partie.
@@ -107,7 +106,7 @@ public class Partie {
                     g.drawString(
                             "" + sector[plateau.Hex.plateau[i][0]].hex[plateau.Hex.plateau[i][1]]
                                     .getShips().size(),
-                            pos[i][0] + 70, pos[i][1]);
+                            pos[i][0] + 35, pos[i][1] + 35);
                 }
             }
             g.dispose();
@@ -139,13 +138,11 @@ public class Partie {
      * Méthode pour initialiser le plateau de jeu.
      */
     public void setup() {
-        // Initialisation du compteur global pour les IDs d'hexagones
-        globalHexId = 0;
-    
+
         // Secteur central (secteur 4)
         plateau.Hex[] hex = { new plateau.Hex(3) };
         this.sector[4] = new plateau.Sector(hex);
-    
+
         // Secteurs gauche et droit
         plateau.Hex[] hexG = { null, null, null, null, null, null };
         hexG[0] = new plateau.Hex(2);
@@ -154,7 +151,7 @@ public class Partie {
         hexG[3] = new plateau.Hex(0);
         hexG[4] = new plateau.Hex(1);
         hexG[5] = new plateau.Hex(0);
-    
+
         plateau.Hex[] hexD = { null, null, null, null, null, null };
         hexD[0] = new plateau.Hex(0);
         hexD[1] = new plateau.Hex(1);
@@ -162,13 +159,13 @@ public class Partie {
         hexD[3] = new plateau.Hex(2);
         hexD[4] = new plateau.Hex(0);
         hexD[5] = new plateau.Hex(1);
-    
+
         plateau.Hex[][] choix = { hexG, hexD };
         List<plateau.Hex[]> list = Arrays.asList(choix);
         Collections.shuffle(list);
         sector[3] = new plateau.Sector(list.get(0));
         sector[5] = new plateau.Sector(list.get(1));
-    
+
         // Secteurs supplémentaires
         plateau.Hex[] hexGH = { null, null, null, null, null, null };
         hexGH[0] = new plateau.Hex(2);
@@ -177,7 +174,7 @@ public class Partie {
         hexGH[3] = new plateau.Hex(0);
         hexGH[4] = new plateau.Hex(0);
         hexGH[5] = new plateau.Hex(1);
-    
+
         plateau.Hex[] hexMH = { null, null, null, null, null, null };
         hexMH[0] = new plateau.Hex(1);
         hexMH[1] = new plateau.Hex(0);
@@ -185,7 +182,7 @@ public class Partie {
         hexMH[3] = new plateau.Hex(0);
         hexMH[4] = new plateau.Hex(2);
         hexMH[5] = new plateau.Hex(0);
-    
+
         plateau.Hex[] hexDH = { null, null, null, null, null, null };
         hexDH[0] = new plateau.Hex(1);
         hexDH[1] = new plateau.Hex(1);
@@ -193,7 +190,7 @@ public class Partie {
         hexDH[3] = new plateau.Hex(0);
         hexDH[4] = new plateau.Hex(0);
         hexDH[5] = new plateau.Hex(2);
-    
+
         plateau.Hex[] hexGB = { null, null, null, null, null, null };
         hexGB[0] = new plateau.Hex(1);
         hexGB[1] = new plateau.Hex(1);
@@ -201,7 +198,7 @@ public class Partie {
         hexGB[3] = new plateau.Hex(0);
         hexGB[4] = new plateau.Hex(0);
         hexGB[5] = new plateau.Hex(0);
-    
+
         plateau.Hex[] hexMB = { null, null, null, null, null, null };
         hexMB[0] = new plateau.Hex(0);
         hexMB[1] = new plateau.Hex(1);
@@ -209,7 +206,7 @@ public class Partie {
         hexMB[3] = new plateau.Hex(0);
         hexMB[4] = new plateau.Hex(0);
         hexMB[5] = new plateau.Hex(1);
-    
+
         plateau.Hex[] hexDB = { null, null, null, null, null, null };
         hexDB[0] = new plateau.Hex(0);
         hexDB[1] = new plateau.Hex(0);
@@ -217,48 +214,40 @@ public class Partie {
         hexDB[3] = new plateau.Hex(0);
         hexDB[4] = new plateau.Hex(1);
         hexDB[5] = new plateau.Hex(1);
-    
+
         plateau.Hex[][] choix1 = { hexGH, hexMH, hexDH, hexGB, hexMB, hexDB };
         list = Arrays.asList(choix1);
         Collections.shuffle(list);
-    
+
         list = plateau.Sector.retournerCarte(list, hexGH, hexMH, hexDH, hexGB, hexMB, hexDB);
-    
+
         sector[0] = new plateau.Sector(list.get(0));
         sector[1] = new plateau.Sector(list.get(1));
         sector[2] = new plateau.Sector(list.get(2));
         sector[6] = new plateau.Sector(list.get(3));
         sector[7] = new plateau.Sector(list.get(4));
         sector[8] = new plateau.Sector(list.get(5));
-    
+
         // Attribution d'IDs uniques aux hexagones
         for (int i = 0; i < sector.length; i++) {
             if (sector[i] != null) {
                 for (int j = 0; j < sector[i].hex.length; j++) {
                     if (sector[i].hex[j] != null) { // Vérifier que l'hexagone n'est pas null
-                        sector[i].hex[j].setId(globalHexId++);
-                        sector[i].hex[j].setIdSector(i);
+                        this.sector[i].hex[j].setId(Hex.findIndex(Hex.plateau, new int[] { i, j }));
+                        this.sector[i].hex[j].setIdSector(i);
+                    }
+                }
+            }
+        }// Attribution d'IDs uniques aux hexagones
+        for (int i = 0; i < sector.length; i++) {
+            if (sector[i] != null) {
+                for (int j = 0; j < sector[i].hex.length; j++) {
+                    if (sector[i].hex[j] != null) { // Vérifier que l'hexagone n'est pas null
+                    this.sector[i].hex[j].setAdjacents();
                     }
                 }
             }
         }
-    }
-    
-
-    /**
-     * Méthode pour obtenir les hexagones contrôlés initialement par un joueur.
-     *
-     * @param joueur Le joueur pour lequel obtenir les hexagones contrôlés.
-     * @return La liste des hexagones contrôlés initialement par le joueur.
-     */
-    public List<Hex> getInitialControlledHexes(Joueur joueur) {
-        List<Hex> initialControlledHexes = new ArrayList<>();
-        for (Hex hex : getPlateau()) {
-            if (hex.getOwner() != null && hex.getOwner().equals(joueur)) {
-                initialControlledHexes.add(hex);
-            }
-        }
-        return initialControlledHexes;
     }
 
     public List<Hex> getPlateau() {
@@ -275,7 +264,6 @@ public class Partie {
         return allHexes;
     }
 
-
     /**
      * Méthode pour vérifier si un secteur est occupé par un joueur.
      *
@@ -291,147 +279,106 @@ public class Partie {
         return false;
     }
 
-/**
- * Méthode pour le déploiement initial des joueurs.
- *
- * @param scanner Le scanner pour lire les entrées utilisateur.
- */
-public void initialDeployment(Scanner scanner) {
-    for (int i = 0; i < 2; i++) {
-        System.out.println("Chaque joueur ajoute 1 vaisseau.");
-        for (int j = (i == 0 ? 0 : this.joueurs.size() - 1); (i == 0 ? j < this.joueurs.size()
-                : j >= 0); j = (i == 0 ? j + 1 : j - 1)) {
+    /**
+     * Méthode pour le déploiement initial des joueurs.
+     *
+     * @param scanner Le scanner pour lire les entrées utilisateur.
+     */
+    public void initialDeployment(Scanner scanner) {
 
-            int choix = -1;
-            boolean isCorrect = false;
-
-            while ((choix < 0 || choix >= Hex.plateau.length) || !isCorrect) {
-                System.out.println(
-                        "Joueur "
-                                + (this.joueurs.get(j).getColor() == Color.BLUE ? "bleu"
-                                        : this.joueurs.get(j).getColor() == Color.GREEN ? "vert" : "jaune")
-                                + ", sélectionnez le numéro d'un système de niveau 1 innocupé :");
-                choix = Integer.parseInt(scanner.nextLine());
-                Hex selectedHex = this.sector[Hex.plateau[choix][0]].hex[Hex.plateau[choix][1]];
-                if (selectedHex.getShips().isEmpty()
-                        && selectedHex.getPlanetContained() == 1
-                        && !this.sectorIsTaken(this.sector[Hex.plateau[choix][0]])) {
-                    isCorrect = true;
-                } else if (this.sectorIsTaken(this.sector[Hex.plateau[choix][0]])) {
-                    System.out.println("Ce secteur a déjà un de ses systèmes de niveaux 1 occupé.");
-                } else {
-                    System.out.println("Sélection incorrect.");
-                }
+        for (int i = 0; i < 2; i++) {
+            System.out.println("Chaque joueur ajoute 1 vaisseaux.");
+            for (int j = (i == 0 ? 0 : this.joueurs.size() - 1); (i == 0 ? j < this.joueurs.size()
+                    : j >= 0); j = (i == 0 ? j + 1 : j - 1)) {
+                this.joueurs.get(j).initialDeployment(i, j, scanner);
             }
-
-            this.closeImage();
-
-            // Récupérer l'hexagone sélectionné
-            Hex selectedHex = this.sector[Hex.plateau[choix][0]].hex[Hex.plateau[choix][1]];
-
-            // Ajouter deux vaisseaux au joueur
-            selectedHex.addShips(2, this.joueurs.get(j));
-
-            // Mettre à jour le contrôle de l'hexagone
-            selectedHex.setOwner(this.joueurs.get(j));
-            this.joueurs.get(j).addControlledHex(selectedHex);
-
-            // Afficher le plateau après chaque sélection
-            this.affichagePlateau();
         }
     }
-}
 
+    public void perform(Scanner scanner) {
+        for (int i = 0; i < 3; i++) {
+            System.out.println("C'est le " + (i + 1) + "e tour");
+            for (int k = 0; k < 3; k++) {
+                System.out.println("------------Affichage des cartes-------------\n" + "Joueur "
+                        + (this.joueurs.get(k).getColor() == Color.BLUE ? "bleu :"
+                                : this.joueurs.get(k).getColor() == Color.GREEN ? "vert :" : "jaune :"));
+                System.out.println("\t - " + (this.joueurs.get(k).getStrat()[i] == CommandCards.EXPAND ? "Expand"
+                        : this.joueurs.get(k).getStrat()[i] == CommandCards.EXPLORE ? "Explore" : "Exterminate"));
+            }
+            for (int j = 0; j < 3; j++) {
+                this.joueurs.get(j).jouerTour(i, scanner);
+            }
+        }
+    }
 
     public static void main(String[] args) {
-    System.out.println();
-    Partie partie = Partie.getInstance();
-    partie.setup();
-    int nom = -1;
-    Scanner scanner = new Scanner(System.in);
+        System.out.println();
+        Partie partie = Partie.getInstance();
+        partie.setup();
+        int nom = -1;
+        Scanner scanner = new Scanner(System.in);
 
-    // Sélection du type de joueurs
-    while (nom < 1 || nom > 3) {
-        System.out.println(
-                "Sélectionnez 1/2/3 : 2 joueurs virtuels (1)/1 joueur virtuel et un vrai joueur (2)/2 vrais joueurs (3) :");
-        nom = Integer.parseInt(scanner.nextLine());
-    }
-
-    switch (nom) {
-        case 1:
-            partie.joueurs = Arrays.asList(
-                    new BotRandom(Color.GREEN, new ArrayList<>()),
-                    new BotRandom(Color.YELLOW, new ArrayList<>()),
-                    new VraiJoueur(Color.BLUE, new ArrayList<>())
-            );
-            break;
-        case 2:
-            partie.joueurs = Arrays.asList(
-                    new BotRandom(Color.GREEN, new ArrayList<>()),
-                    new VraiJoueur(Color.YELLOW, new ArrayList<>()),
-                    new VraiJoueur(Color.BLUE, new ArrayList<>())
-            );
-            break;
-        default:
-            partie.joueurs = Arrays.asList(
-                    new VraiJoueur(Color.GREEN, new ArrayList<>()),
-                    new VraiJoueur(Color.YELLOW, new ArrayList<>()),
-                    new VraiJoueur(Color.BLUE, new ArrayList<>())
-            );
-            break;
-    }
-
-    // Mélange des joueurs pour l'ordre des tours
-    Collections.shuffle(partie.joueurs);
-
-    // Affichage initial du plateau
-    partie.affichagePlateau();
-
-    // Phase de déploiement initial
-    partie.initialDeployment(scanner);
-
-    // Ajout des hexagones contrôlés après la phase de déploiement initial
-    for (Joueur joueur : partie.joueurs) {
-        for (Hex hex : partie.getInitialControlledHexes(joueur)) {
-            joueur.addControlledHex(hex);
+        // Sélection du type de joueurs
+        while (nom < 1 || nom > 3) {
+            System.out.println(
+                    "Sélectionnez 1/2/3 : 2 joueurs virtuels (1)/1 joueur virtuel et un vrai joueur (2)/2 vrais joueurs (3) :");
+            nom = Integer.parseInt(scanner.nextLine());
         }
-    }
 
-    // Phase de choix des stratégies
-    for (Joueur joueur : partie.joueurs) {
-        System.out.print("Joueur " + (joueur.getColor() == Color.BLUE ? "bleu,"
-                : joueur.getColor() == Color.GREEN ? "vert," : "jaune,"));
-        joueur.chooseStrat(scanner);
-    }
+        switch (nom) {
+            case 1: {
+                Integer[] choix = { -1, -1 };
+                for (int i = 0; i < 2; i++) {
+                    while (choix[i] < 1 || choix[i] >= 3) {
+                        System.out.println(
+                                "Le " + (i+1) + "e bot offensif(1) ou aléatoire (2) ? ");
+                        choix[i] = Integer.parseInt(scanner.nextLine());
+                    }
+                }
 
-    // Phase de résolution des actions
-    for (int i = 0; i < 3; i++) { // Pour chaque carte de commande (tour d'action)
+                partie.joueurs = Arrays.asList(
+                        choix[0] == 2 ? new BotRandom(Color.GREEN) : new BotOffensif(Color.GREEN),
+                        choix[1] == 2 ? new BotRandom(Color.YELLOW) : new BotOffensif(Color.YELLOW),
+                        new VraiJoueur(Color.BLUE));
+                break;
+            }
+            case 2: {
+                Integer choix = -1;
+                while (choix < 1 || choix >= 3) {
+                    System.out.println(
+                            "Le bot est un bot offensif(1) ou aléatoire (2) ? ");
+                    choix = Integer.parseInt(scanner.nextLine());
+                }
+
+                partie.joueurs = Arrays.asList(
+                        choix == 2 ? new BotRandom(Color.GREEN) : new BotOffensif(Color.GREEN),
+                        new VraiJoueur(Color.YELLOW),
+                        new VraiJoueur(Color.BLUE));
+                break;
+            }
+            default:
+                partie.joueurs = Arrays.asList(
+                        new VraiJoueur(Color.GREEN),
+                        new VraiJoueur(Color.YELLOW),
+                        new VraiJoueur(Color.BLUE));
+                break;
+        }
+
+        // Mélange des joueurs pour l'ordre des tours
+        Collections.shuffle(partie.joueurs);
+
+        // Affichage initial du plateau
+        partie.affichagePlateau();
+
+        // Phase de déploiement initial
+        partie.initialDeployment(scanner);
+        // Phase de choix des stratégies
         for (Joueur joueur : partie.joueurs) {
-            int conflictCount = 0;
-
-            // Vérifier les conflits pour cette action
-            for (Joueur autreJoueur : partie.joueurs) {
-                if (joueur != autreJoueur &&
-                        joueur.getCommandCards()[i] == autreJoueur.getCommandCards()[i]) {
-                    conflictCount++;
-                }
-            }
-
-            // Exécuter l'action choisie
-            joueur.jouerAction(i, conflictCount, scanner);
-
-            // Mise à jour des hexagones contrôlés après chaque action
-            for (Hex hex : partie.getPlateau()) {
-                hex.updateControl();
-                if (hex.getOwner() != null && !joueur.controlsHex(hex)) {
-                    joueur.addControlledHex(hex);
-                } else if (hex.getOwner() == null && joueur.controlsHex(hex)) {
-                    joueur.removeControlledHex(hex);
-                }
-            }
+            System.out.println("Joueur " + (joueur.getColor() == Color.BLUE ? "bleu :"
+                    : joueur.getColor() == Color.GREEN ? "vert :" : "jaune :")+"choix de la stratégie");
+            joueur.chooseStrat(scanner);
         }
+        partie.perform(scanner);
     }
-}
 
-    
 }
