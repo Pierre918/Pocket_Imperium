@@ -1,6 +1,7 @@
 package joueurs;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -102,7 +103,7 @@ public class VraiJoueur extends Joueur {
 
     @Override
     public void expand(int playersChoosingExpand, Scanner scanner) {
-        Integer shipsToAdd;
+        int shipsToAdd;
         System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
                 : this.getColor() == Color.GREEN ? "vert" : "jaune") + " :\nExécute l'action EXPAND.");
         // Détermine le nombre de vaisseaux à ajouter en fonction du nombre de joueurs
@@ -130,7 +131,7 @@ public class VraiJoueur extends Joueur {
             boolean isValid = false;
             while (!isValid) {
                 System.out.println("Entrez l'ID de l'hexagone où vous souhaitez ajouter un vaisseau : ");
-                int hexId = scanner.nextInt();
+                Integer hexId = scanner.nextInt();
 
                 // Trouve l'hexagone correspondant
                 if (this.isHexControlledByMe(hexId, this)) {
@@ -149,4 +150,81 @@ public class VraiJoueur extends Joueur {
             partie.affichagePlateau();
         }
     }
+
+    public void exterminate(int playersChoosingExterminate, Scanner scanner) {
+        int systemsToInvade;
+        Partie partie = Partie.getInstance();
+        System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
+                : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXTERMINATE.");
+        // Détermine le nombre de systèmes pouvant être envahis en fonction des joueurs
+        // ayant choisi Exterminate
+        systemsToInvade = switch (playersChoosingExterminate) {
+            case 1 -> 3;
+            case 2 -> 2;
+            default -> 1;
+        };
+
+        System.out.println("Action EXTERMINATE : vous pouvez envahir " + systemsToInvade + " systèmes.");
+        ArrayList<Integer> myHexIds=new ArrayList<>();
+        for (Hex hex : this.getControlledHex(this)){
+            myHexIds.add(Hex.findIndex(Hex.plateau, new int[] {hex.getIdSector(),hex.getId()}));
+        }
+        
+        // Gérer les invasions
+        while (systemsToInvade > 0) {
+            // Demander l'hexagone de départ
+            boolean goodAnsw = false;
+            Hex startHex = null;
+            while (!goodAnsw) {
+                System.out.println("Entrez l'ID de l'hexagone de départ que vous contrôlez pour l'invasion : ");
+                int startHexId = scanner.nextInt();
+
+                // Vérifie si l'hexagone de départ est contrôlé
+                startHex = partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]];
+                if (!myHexIds.contains(startHexId)) {
+                    System.out.println("Hexagone non valide, sans vaisseaux, ou avec des vaisseaux déjà utilisés. Veuillez réessayer.");
+                } else {
+                    goodAnsw = true;
+                }
+            }
+            goodAnsw = false;
+            int shipsToUse=-1;
+            // Demander le nombre de vaisseaux à utiliser pour l'invasion
+            while (!goodAnsw) {
+                System.out.println("Entrez le nombre de vaisseaux que vous souhaitez utiliser (maximum : "
+                        + startHex.getShips().size() + ") : ");
+                shipsToUse = scanner.nextInt();
+
+                if (shipsToUse <= 0 || shipsToUse > startHex.getShips().size()) {
+                    System.out.println("Nombre de vaisseaux non valide. Veuillez réessayer.");
+                } else {
+                    goodAnsw = true;
+                }
+            }
+            goodAnsw = false;
+            int targetHexId=-1;
+            // Demander l'hexagone cible
+            while (!goodAnsw) {
+                System.out.println("Entrez l'ID de l'hexagone cible : ");
+                targetHexId = scanner.nextInt();
+
+                // Vérifie si l'hexagone cible est adjacent et non contrôlé par ce joueur
+                if (!this.isHexAdjacent(startHex, targetHexId)) {
+                    System.out.println("Hexagone non adjacent ou déjà contrôlé. Veuillez réessayer.");
+                } else {
+                    goodAnsw = true;
+                    myHexIds.remove(Integer.valueOf(targetHexId));
+                }
+            }
+
+            // Simuler l'invasion avec le nombre choisi de vaisseaux
+            invade(startHex, targetHexId, shipsToUse);
+
+            // Réduire le nombre de systèmes restants à envahir
+            systemsToInvade--;
+        }
+
+        System.out.println("Extermination terminée.");
+    }
+
 }

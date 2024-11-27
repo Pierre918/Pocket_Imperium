@@ -233,21 +233,14 @@ public class Partie {
             if (sector[i] != null) {
                 for (int j = 0; j < sector[i].hex.length; j++) {
                     if (sector[i].hex[j] != null) { // Vérifier que l'hexagone n'est pas null
-                        this.sector[i].hex[j].setId(Hex.findIndex(Hex.plateau, new int[] { i, j }));
+                        this.sector[i].hex[j].setId(j);
                         this.sector[i].hex[j].setIdSector(i);
+                        this.sector[i].hex[j].setAdjacents();
                     }
                 }
             }
         }// Attribution d'IDs uniques aux hexagones
-        for (int i = 0; i < sector.length; i++) {
-            if (sector[i] != null) {
-                for (int j = 0; j < sector[i].hex.length; j++) {
-                    if (sector[i].hex[j] != null) { // Vérifier que l'hexagone n'est pas null
-                    this.sector[i].hex[j].setAdjacents();
-                    }
-                }
-            }
-        }
+
     }
 
     public List<Hex> getPlateau() {
@@ -297,9 +290,9 @@ public class Partie {
 
     public void perform(Scanner scanner) {
         for (int i = 0; i < 3; i++) {
-            System.out.println("C'est le " + (i + 1) + "e tour");
+            System.out.println("-> C'est le " + (i + 1) + "e tour\n"+"------------Affichage des cartes-------------\n");
             for (int k = 0; k < 3; k++) {
-                System.out.println("------------Affichage des cartes-------------\n" + "Joueur "
+                System.out.println("Joueur "
                         + (this.joueurs.get(k).getColor() == Color.BLUE ? "bleu :"
                                 : this.joueurs.get(k).getColor() == Color.GREEN ? "vert :" : "jaune :"));
                 System.out.println("\t - " + (this.joueurs.get(k).getStrat()[i] == CommandCards.EXPAND ? "Expand"

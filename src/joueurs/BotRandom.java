@@ -41,7 +41,7 @@ public class BotRandom extends Joueur {
         // Convertir la liste en un tableau
         this.strat = cardList.toArray(new CommandCards[0]);
 
-        this.strat[0] = CommandCards.EXPAND;
+        this.strat[0] = CommandCards.EXTERMINATE;
 
         System.out.println("Le bot aléatoire " + (this.getColor() == Color.BLUE ? "bleu"
                 : this.getColor() == Color.GREEN ? "vert" : "jaune") + " a choisi sa stratégie");
@@ -63,24 +63,22 @@ public class BotRandom extends Joueur {
                 : this.getColor() == Color.GREEN ? "vert" : "jaune") + " :\nExécute l'action EXPAND avec " + shipsToAdd
                 + " vaisseaux.");
         Partie partie = Partie.getInstance();
-        ArrayList<Integer> idControlledHexs = new ArrayList<>();
+        ArrayList<int[]> idControlledHexs = new ArrayList<>();
         for (Hex hex : this.getControlledHex(this)) {
-            idControlledHexs.add(hex.getId());
+            idControlledHexs.add(new int[] { hex.getIdSector(), hex.getId() });
         }
         Random random = new Random();
 
         while (shipsToAdd > 0) {
-            System.out.println(idControlledHexs);
-            System.out.println(idControlledHexs.size());
             Integer randomIndex = random.nextInt(idControlledHexs.size());
 
             // Obtenir l'élément à l'index aléatoire
-            Integer randomElement = idControlledHexs.get(randomIndex);
+            int[] randomElement = idControlledHexs.get(randomIndex);
 
-            partie.sector[Hex.plateau[randomElement][0]].hex[Hex.plateau[randomElement][1]].addShips(1, this);
+            partie.sector[randomElement[0]].hex[randomElement[1]].addShips(1, this);
             this.nbShipsSupply--;
             shipsToAdd--;
-            System.out.println("Un vaisseau a été ajouté à l'hexagone n°" + randomElement);
+            System.out.println("Un vaisseau a été ajouté à l'hexagone n°" + Hex.findIndex(Hex.plateau, randomElement));
         }
         partie.closeImage();
         partie.affichagePlateau();
@@ -91,7 +89,8 @@ public class BotRandom extends Joueur {
         ArrayList<Hex> level1Hexs = new ArrayList<Hex>();
         for (int k = 0; k < partie.sector.length; k++) {
             for (int l = 0; l < partie.sector[k].hex.length; l++) {
-                if (partie.sector[k].hex[l].getPlanetContained() == 1 && partie.sector[k].hex[l].getShips().isEmpty() && !partie.sectorIsTaken(partie.sector[k])) {
+                if (partie.sector[k].hex[l].getPlanetContained() == 1 && partie.sector[k].hex[l].getShips().isEmpty()
+                        && !partie.sectorIsTaken(partie.sector[k])) {
                     level1Hexs.add(partie.sector[k].hex[l]);
                 }
             }
@@ -100,10 +99,54 @@ public class BotRandom extends Joueur {
         Integer randomIndex = random.nextInt(level1Hexs.size());
         Hex randomElement = level1Hexs.get(randomIndex);
         partie.closeImage();
-        partie.sector[Hex.plateau[randomElement.getId()][0]].hex[Hex.plateau[randomElement.getId()][1]].addShips(2, partie.joueurs.get(j));
-        System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu :"
-        : this.getColor() == Color.GREEN ? "vert :" : "jaune :")+randomElement.getId());
+        partie.sector[randomElement.getIdSector()].hex[randomElement.getId()].addShips(2, partie.joueurs.get(j));
         partie.affichagePlateau();
-        
+        System.out.println("Bot " + (this.getColor() == Color.BLUE ? "bleu"
+                : this.getColor() == Color.GREEN ? "vert" : "jaune") + " a choisi un hexagone");
+    }
+
+    @Override
+    public void exterminate(int playersChoosingExterminate, Scanner scanner) {
+        int systemsToInvade;
+        Partie partie = Partie.getInstance();
+        System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
+                : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXTERMINATE.");
+        // Détermine le nombre de systèmes pouvant être envahis en fonction des joueurs
+        // ayant choisi Exterminate
+        systemsToInvade = switch (playersChoosingExterminate) {
+            case 1 -> 3;
+            case 2 -> 2;
+            default -> 1;
+        };
+
+        ArrayList<Integer> myHexIds = new ArrayList<>();
+        for (Hex hex : this.getControlledHex(this)) {
+            myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
+        }
+
+        // Gérer les invasions
+        while (systemsToInvade > 0) {
+            Collections.shuffle(myHexIds);
+            Random random = new Random();
+            int nbShipsMoving = random
+                    .nextInt(partie.sector[Hex.plateau[myHexIds.get(0)][0]].hex[Hex.plateau[myHexIds.get(0)][1]]
+                            .getShips().size());
+
+            // partie.sector[Hex.plateau[myHexIds.get(0)][0]].hex[Hex.plateau[myHexIds.get(0)][1]]
+            //         .deleteShips(nbShipsMoving);
+
+            Hex hexChoisi = partie.sector[Hex.plateau[myHexIds.get(0)][0]].hex[Hex.plateau[myHexIds.get(0)][1]];
+
+            int invadeHexId = myHexIds.get(0);
+            while (myHexIds.contains(invadeHexId)) {
+                invadeHexId = Hex.findIndex(Hex.plateau,
+                        hexChoisi.getAdjacents()[random.nextInt(hexChoisi.getAdjacents().length)]);
+            }
+            this.invade(hexChoisi,invadeHexId,nbShipsMoving);
+            // Réduire le nombre de systèmes restants à envahir
+            systemsToInvade--;
+        }
+
+        System.out.println("Extermination terminée.");
     }
 }

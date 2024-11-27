@@ -195,7 +195,7 @@ public abstract class Joueur {
      */
     protected boolean isHexControlledByMe(int id, Joueur joueur) {
         for (Hex hex : getControlledHex(joueur)) {
-            if (hex.getId() == id) {
+            if (Hex.findIndex(Hex.plateau, new int[] {hex.getIdSector(), hex.getId()}) == id) {
                 return true;
             }
         }
@@ -213,69 +213,7 @@ public abstract class Joueur {
      * @param scanner                    Le scanner pour lire les entrées de
      *                                   l'utilisateur.
      */
-    public void exterminate(int playersChoosingExterminate, Scanner scanner) {
-        int systemsToInvade;
-
-        System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
-                : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXTERMINATE.");
-        // Détermine le nombre de systèmes pouvant être envahis en fonction des joueurs
-        // ayant choisi Exterminate
-        systemsToInvade = switch (playersChoosingExterminate) {
-            case 1 -> 3;
-            case 2 -> 2;
-            default -> 1;
-        };
-
-        System.out.println("Action EXTERMINATE : vous pouvez envahir " + systemsToInvade + " systèmes.");
-
-        // Gérer les invasions
-        while (systemsToInvade > 0) {
-            System.out.println("Hexagones contrôlés par vous :");
-            for (Hex hex : getControlledHex()) {
-                System.out.println("Hex ID: " + hex.getId() + " - Nombre de Vaisseaux: " + hex.getShips().size());
-            }
-
-            // Demander l'hexagone de départ
-            System.out.println("Entrez l'ID de l'hexagone de départ pour l'invasion : ");
-            int startHexId = scanner.nextInt();
-
-            // Vérifie si l'hexagone de départ est contrôlé
-            Hex startHex = findControlledHexById(startHexId);
-            if (startHex == null || startHex.getShips().isEmpty()) {
-                System.out.println("Hexagone non valide ou sans vaisseaux. Veuillez réessayer.");
-                continue;
-            }
-
-            // Demander le nombre de vaisseaux à utiliser pour l'invasion
-            System.out.println("Entrez le nombre de vaisseaux que vous souhaitez utiliser (maximum : "
-                    + startHex.getShips().size() + ") : ");
-            int shipsToUse = scanner.nextInt();
-
-            if (shipsToUse <= 0 || shipsToUse > startHex.getShips().size()) {
-                System.out.println("Nombre de vaisseaux non valide. Veuillez réessayer.");
-                continue;
-            }
-
-            // Demander l'hexagone cible
-            System.out.println("Entrez l'ID de l'hexagone cible : ");
-            int targetHexId = scanner.nextInt();
-
-            // Vérifie si l'hexagone cible est adjacent et non contrôlé par ce joueur
-            if (!isHexAdjacent(startHex, targetHexId)) {
-                System.out.println("Hexagone non adjacent ou déjà contrôlé. Veuillez réessayer.");
-                continue;
-            }
-
-            // Simuler l'invasion avec le nombre choisi de vaisseaux
-            simulateInvasion(startHex, targetHexId, shipsToUse);
-
-            // Réduire le nombre de systèmes restants à envahir
-            systemsToInvade--;
-        }
-
-        System.out.println("Extermination terminée.");
-    }
-
+    public abstract void exterminate(int playersChoosingExterminate, Scanner scanner); 
     /**
      * Simule une invasion d'un système par le joueur.
      *
@@ -283,34 +221,30 @@ public abstract class Joueur {
      * @param targetHexId L'ID de l'hexagone cible.
      * @param shipsToUse  Le nombre de vaisseaux utilisés pour l'invasion.
      */
-    private void simulateInvasion(Hex startHex, int targetHexId, int shipsToUse) {
+    protected void invade(Hex startHex, int targetHexId, int shipsToUse) {
+        Partie partie = Partie.getInstance();
+        
         // Récupérer l'hexagone cible (simulation d'un système non contrôlé)
-        Hex targetHex = new Hex(0);
-        targetHex.setId(targetHexId);
-
-        System.out.println("Invasion de l'hexagone ID: " + targetHexId + " depuis l'hexagone ID: " + startHex.getId());
 
         // Supprime le nombre de vaisseaux choisi de l'hexagone de départ
-        startHex.deleteShips(shipsToUse);
+        partie.sector[startHex.getIdSector()].hex[startHex.getId()].deleteShips(shipsToUse);
 
         // Simuler la résolution de l'invasion
         int attackerShips = shipsToUse; // Vaisseaux attaquants
-        int defenderShips = targetHex.getShips().size(); // Vaisseaux défensifs
+        int defenderShips = partie.sector[Hex.plateau[targetHexId][0]].hex[Hex.plateau[targetHexId][1]].getShips().size(); // Vaisseaux défensifs
 
         System.out.println(
                 "Attaquant : " + attackerShips + " vaisseau(x), Défenseur : " + defenderShips + " vaisseau(x)");
 
         int minShips = Math.min(attackerShips, defenderShips);
-
-        // Retirer les vaisseaux des deux côtés
-        startHex.deleteShips(minShips);
-        targetHex.deleteShips(minShips);
+        
+        partie.sector[Hex.plateau[targetHexId][0]].hex[Hex.plateau[targetHexId][1]].deleteShips(minShips);
 
         // Résultat de l'invasion
         if (attackerShips > defenderShips) {
             // Attaquant gagne
             System.out.println("L'attaquant contrôle maintenant l'hexagone.");
-            targetHex.addShips(attackerShips - minShips, this); // Ajouter les vaisseaux restants
+            partie.sector[Hex.plateau[targetHexId][0]].hex[Hex.plateau[targetHexId][1]].addShips(attackerShips - minShips, this); // Ajouter les vaisseaux restants
         } else if (attackerShips < defenderShips) {
             // Défenseur gagne
             System.out.println("Le défenseur garde le contrôle de l'hexagone.");
@@ -318,6 +252,8 @@ public abstract class Joueur {
             // Système reste inoccupé
             System.out.println("Le système est maintenant inoccupé.");
         }
+        partie.closeImage();
+        partie.affichagePlateau();
     }
 
     /**
@@ -327,10 +263,10 @@ public abstract class Joueur {
      * @param targetHexId L'ID de l'hexagone cible.
      * @return true si l'hexagone cible est adjacent, false sinon.
      */
-    private boolean isHexAdjacent(Hex startHex, int targetHexId) {
+    protected boolean isHexAdjacent(Hex startHex, int targetHexId) {
         int[][] adjacents = startHex.getAdjacents();
         for (int[] adjacent : adjacents) {
-            if (adjacent[1] == targetHexId) {
+            if (Hex.findIndex(Hex.plateau, adjacent) == targetHexId) {
                 return true; // Hexagone adjacent
             }
         }

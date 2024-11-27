@@ -286,7 +286,6 @@ public class Hex {
             }
         }
         this.adjacents = res.toArray(new int[0][]);
-        System.out.println(this.getId()+" : "+this.adjacents[0][0]+","+this.adjacents[0][1]);
     }
 
     /**
@@ -297,8 +296,6 @@ public class Hex {
     public static void main(String[] args) {
         System.out.println("null");
         Hex hex = new Hex(0);
-        joueurs.VraiJoueur j = new joueurs.VraiJoueur(Color.BLUE);
-        hex.addShips(1, j);
-        System.out.println(hex.isControlledBy(j));
+        System.out.println(Hex.plateau[4][0]+" "+Hex.plateau[4][1]);
     }
 }
