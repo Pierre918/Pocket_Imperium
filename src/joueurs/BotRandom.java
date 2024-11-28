@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Bot aléatoire qui agit comme un joueur dans un tour, sans stratégie
- * spécifique.
+ * Bot aléatoire qui agit comme un joueur dans un tour, de manière totalement
+ * aléatoire.
  */
 public class BotRandom extends Joueur {
 
@@ -41,12 +41,20 @@ public class BotRandom extends Joueur {
         // Convertir la liste en un tableau
         this.strat = cardList.toArray(new CommandCards[0]);
 
-        this.strat[0] = CommandCards.EXTERMINATE;
+        this.strat[0] = CommandCards.EXPLORE;
 
         System.out.println("Le bot aléatoire " + (this.getColor() == Color.BLUE ? "bleu"
                 : this.getColor() == Color.GREEN ? "vert" : "jaune") + " a choisi sa stratégie");
     }
 
+    /**
+     * Choisi aléatoirement un hexagone contrôlé où placer un nombre aléatoire de
+     * vaisseau.
+     * Tout cela en prenant en compte le nombre de personne qui jouent la même carte
+     * 
+     * @param playersChoosingExpand
+     * @param scanner
+     */
     @Override
     public void expand(int playersChoosingExpand, Scanner scanner) {
         int shipsToAdd;
@@ -84,6 +92,13 @@ public class BotRandom extends Joueur {
         partie.affichagePlateau();
     }
 
+    /**
+     * Permet de faire la première disposition des vaisseaux
+     * 
+     * @param i
+     * @param j
+     * @param scanner
+     */
     public void initialDeployment(Integer i, Integer j, Scanner scanner) {
         Partie partie = Partie.getInstance();
         ArrayList<Hex> level1Hexs = new ArrayList<Hex>();
@@ -105,6 +120,13 @@ public class BotRandom extends Joueur {
                 : this.getColor() == Color.GREEN ? "vert" : "jaune") + " a choisi un hexagone");
     }
 
+    /**
+     * Implémentation de la méthode exterminate de manière aléatoire.
+     * Choisi un hexagone contrôlé depuis lequel mener l'invasion de manière
+     * aléatoire
+     * Choisi également un hexagone adjacent et un nombre de vaisseaux pour
+     * attaquer.
+     */
     @Override
     public void exterminate(int playersChoosingExterminate, Scanner scanner) {
         int systemsToInvade;
@@ -119,34 +141,93 @@ public class BotRandom extends Joueur {
             default -> 1;
         };
 
-        ArrayList<Integer> myHexIds = new ArrayList<>();
-        for (Hex hex : this.getControlledHex(this)) {
-            myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
-        }
-
         // Gérer les invasions
         while (systemsToInvade > 0) {
+            ArrayList<Integer> myHexIds = new ArrayList<>();
+            for (Hex hex : this.getControlledHex(this)) {
+                myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
+            }
             Collections.shuffle(myHexIds);
-            Random random = new Random();
-            int nbShipsMoving = random
-                    .nextInt(partie.sector[Hex.plateau[myHexIds.get(0)][0]].hex[Hex.plateau[myHexIds.get(0)][1]]
-                            .getShips().size());
-
-            // partie.sector[Hex.plateau[myHexIds.get(0)][0]].hex[Hex.plateau[myHexIds.get(0)][1]]
-            //         .deleteShips(nbShipsMoving);
-
             Hex hexChoisi = partie.sector[Hex.plateau[myHexIds.get(0)][0]].hex[Hex.plateau[myHexIds.get(0)][1]];
+            Random random = new Random();
+            System.out.println("bound : " + hexChoisi.getShips().size() + 1);
+            int nbShipsMoving = hexChoisi
+                    .getShips().size() == 1 ? 1
+                            : (random
+                                    .nextInt(hexChoisi
+                                            .getShips().size() + 1));
 
             int invadeHexId = myHexIds.get(0);
             while (myHexIds.contains(invadeHexId)) {
                 invadeHexId = Hex.findIndex(Hex.plateau,
                         hexChoisi.getAdjacents()[random.nextInt(hexChoisi.getAdjacents().length)]);
             }
-            this.invade(hexChoisi,invadeHexId,nbShipsMoving);
+            System.out.println("Le bot envahie l'hexagone n°" + invadeHexId + "avec " + nbShipsMoving + " vaisseaux");
+            this.invade(hexChoisi, invadeHexId, nbShipsMoving);
             // Réduire le nombre de systèmes restants à envahir
             systemsToInvade--;
         }
 
         System.out.println("Extermination terminée.");
     }
+
+    /**
+     * Implémentation de la méthode explore
+     * Implémentation de la méthode exterminate de manière aléatoire.
+     * Choisi un hexagone contrôlé depuis lequel mener l'invasion de manière
+     * aléatoire
+     * Choisi également un hexagone adjacent et un nombre de vaisseaux pour se
+     * déplacer.
+     * 
+     * @param playersChoosingExplore
+     * @param scanner
+     */
+    @Override
+    public void explore(int playersChoosingExplore, Scanner scanner) {
+        int fleetsToMove;
+        Partie partie = Partie.getInstance();
+        System.out.println("Bot " + (this.getColor() == Color.BLUE ? "bleu"
+                : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXPLORE.");
+
+        fleetsToMove = switch (playersChoosingExplore) {
+            case 1 -> 3;
+            case 2 -> 2;
+            default -> 1;
+        };
+
+        // Déplacement des flottes
+        Random random = new Random();
+        while (fleetsToMove > 0) {
+            ArrayList<Integer> myHexIds = new ArrayList<>();
+            for (Hex hex : this.getControlledHex(this)) {
+                myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
+            }
+            int startHexId = myHexIds.get(random.nextInt(myHexIds.size()));
+            Hex startHex = partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]];
+            int targetHexId = -1;
+            do {
+                targetHexId = Hex.findIndex(Hex.plateau,
+                        startHex.getAdjacents()[random.nextInt(startHex.getAdjacents().length)]);
+                if (targetHexId == 24) {
+                    myHexIds.remove(Integer.valueOf(targetHexId));
+                }
+            } while (!isHexAdjacentAndFree(startHexId, targetHexId));
+            System.out.println("bound : "
+                    + partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]].getShips().size() + 1);
+            int nbShipsMoving = partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]].getShips()
+                    .size() == 1 ? 1
+                            : (random.nextInt(
+                                    partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]].getShips()
+                                            .size() + 1));
+
+            System.out.println(nbShipsMoving);
+            moveFleet(startHexId, targetHexId, nbShipsMoving);
+
+            fleetsToMove--; // Réduit le nombre de flottes restantes
+        }
+        partie.closeImage();
+        partie.affichagePlateau();
+        System.out.println("Exploration terminée.");
+    }
+
 }

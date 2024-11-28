@@ -9,6 +9,12 @@ import java.util.Scanner;
 import partie.Partie;
 import plateau.Hex;
 
+/**
+ * La classe BotOffensif représente un robot virtuel de type offensif dans le jeu. Elle étend la
+ * classe Joueur
+ * Le bot implémenté par cette classe attaque dès qu'il peut. Il se place en priorité à côté des hexagones où un
+ * vaisseau est déjà présent et attaque toujours au premier tour.
+ */
 public class BotOffensif extends Joueur {
     /**
      * Constructeur de la classe BotRandom.
@@ -19,6 +25,14 @@ public class BotOffensif extends Joueur {
         super(color);
     }
 
+    
+    /** 
+     * Ajoute en priorité des vaisseaux aux hexagones qui ont des voisins où il y a des vaisseaux d'autres joueurs
+     * Sinon choisi au hasard un hexagone qu'il contrôle.
+     *   
+     * @param playersChoosingExpand
+     * @param scanner
+     */
     @Override
     public void expand(int playersChoosingExpand, Scanner scanner) {
         int shipsToAdd;
@@ -52,7 +66,7 @@ public class BotOffensif extends Joueur {
                                     : this.getColor() == Color.GREEN ? "vert" : "jaune")
                                     + "a ajouté un vaisseau a été ajouté à l'hexagone n°"
                                     + Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
-                            isAdded=true;;
+                            isAdded=true;
                         }
                     }
 
@@ -75,6 +89,14 @@ public class BotOffensif extends Joueur {
         }
     }
 
+    
+    /** 
+     * Le bot se place en priorité à côté de joueur, en prenant en compte les contraintes liées au déploiement initial.
+     * Sinon il se place sur un hexagone aléaoire de niveau 1.
+     * @param i Permet de connaitre le numéro du tour
+     * @param j Permet de savoir si ce joueur est le premier a jouer dans le tour
+     * @param scanner
+     */
     @Override
     public void initialDeployment(Integer i, Integer j, Scanner scanner) {
         Partie partie = Partie.getInstance();
@@ -91,8 +113,7 @@ public class BotOffensif extends Joueur {
                 }
             }
         }
-        if (i != 0 || j != 0) {
-
+        if (i != 0 || j != 0) { //si le joueur n'est pas le premier a jouer (et qu'il y a déjà des vaisseaux sur le plateaux)
             for (Hex hex : level1HexsTaken) {
                 for (int[] hexAdj : hex.getAdjacents()) {
                     if (hexAdj[0] != hex.getIdSector()
@@ -119,6 +140,11 @@ public class BotOffensif extends Joueur {
         partie.affichagePlateau();
     }
 
+    
+    /** 
+     * La stratégie est toujours la même : attaquer en priorité.
+     * @param scanner
+     */
     @Override
     public void chooseStrat(Scanner scanner) {
         this.strat[0] = CommandCards.EXTERMINATE; 
@@ -130,5 +156,11 @@ public class BotOffensif extends Joueur {
     public void exterminate(int playersChoosingExterminate, Scanner scanner) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'exterminate'");
+    }
+
+    @Override
+    public void explore(int playersChoosingExplore, Scanner scanner) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'explore'");
     }
 }

@@ -1,14 +1,13 @@
 package plateau;
-
-import java.util.ArrayList;
 import java.util.List;
-
-import joueurs.Joueur;
 
 public class Sector {
     public Hex[] hex;
 
     /**
+     * Méthode permettant de "retourner" une carte dans le cas où elle était définie comme une carte étant en haut du plateau
+     * et se retrouve finalement en bas avec la disposition aléatoire
+     * 
      * @param list
      * @param hexGH
      * @param hexMH
@@ -102,19 +101,11 @@ public class Sector {
         return list;
     }
 
+    /**
+     * Constructeur de la classe
+     * @param hex
+     */
     public Sector(Hex[] hex) {
         this.hex = hex;
-    }
-
-    public List<Joueur> isOccupied() {
-        List<Joueur> joueur = new ArrayList<>();
-        for (int i = 0; i < this.hex.length; i++) {
-            if (!this.hex[i].getShips().isEmpty()) {
-                if (!joueur.contains(this.hex[i].getShips().get(0).joueur)) {
-                    joueur.add(this.hex[i].getShips().get(0).joueur);
-                }
-            }
-        }
-        return joueur;
     }
 }

@@ -1,6 +1,5 @@
 package plateau;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import vaisseaux.Ship;
 
 /**
  * La classe Hex représente un hexagone dans le plateau de jeu.
+ * L'attribut static plateau permet de convertir un id représenté pour le joueur en un id de secteur et un id d'hexagone au sein de ce secteur
  */
 public class Hex {
     /**
@@ -16,7 +16,8 @@ public class Hex {
      */
     private int planetContained;
     /**
-     * L'identifiant de l'hexagone.
+     * L'identifiant de l'hexagone au sein du secteur.
+     * Est différent de l'id global représenté sur l'image du plateau
      */
     private int id;
     /**
@@ -161,6 +162,7 @@ public class Hex {
     }
 
     int[][] adjacents;
+    
     public static int[][] plateau = {
             { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 },
             { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 2 }, { 2, 3 },
@@ -172,6 +174,9 @@ public class Hex {
             { 6, 2 }, { 6, 3 }, { 7, 2 }, { 7, 3 }, { 8, 2 }, { 8, 3 },
             { 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 },
     };
+    /**
+     * Permet de définir les hexagones adjacents
+     */
     public int[][][] plateauAdj = {
             { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 } },
             { { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 2 }, { 2, 3 } },
@@ -184,7 +189,13 @@ public class Hex {
             { { 6, 4 }, { 6, 5 }, { 7, 4 }, { 7, 5 }, { 8, 4 }, { 8, 5 } },
     };
 
-
+    /**
+     * Méthode permettant de retrouver l'id d'un hexagone (celui visible pour le joueur), à partir de l'id du secteur et l'id de 
+     * l'hexagone dans le secteur
+     * @param array
+     * @param target
+     * @return
+     */
     public static int findIndex(int[][] array, int[] target) {
         for (int i = 0; i < array.length; i++) {
             if (array[i][0] == target[0] && array[i][1] == target[1]) {
@@ -295,7 +306,6 @@ public class Hex {
      */
     public static void main(String[] args) {
         System.out.println("null");
-        Hex hex = new Hex(0);
         System.out.println(Hex.plateau[4][0]+" "+Hex.plateau[4][1]);
     }
 }
