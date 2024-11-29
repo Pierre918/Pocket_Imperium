@@ -239,22 +239,8 @@ public class Partie {
                     }
                 }
             }
-        }// Attribution d'IDs uniques aux hexagones
+        } // Attribution d'IDs uniques aux hexagones
 
-    }
-
-    public List<Hex> getPlateau() {
-        List<Hex> allHexes = new ArrayList<>();
-        for (Sector sector : this.sector) {
-            if (sector != null) {
-                for (Hex hex : sector.hex) {
-                    if (hex != null) {
-                        allHexes.add(hex);
-                    }
-                }
-            }
-        }
-        return allHexes;
     }
 
     /**
@@ -288,9 +274,16 @@ public class Partie {
         }
     }
 
+    /**
+     * Méthode permettant d'exécuter la partie perform du jeu. Appelle chacune des
+     * méthodes jouer tour des joueurs tout en affichant leur cartes
+     * 
+     * @param scanner
+     */
     public void perform(Scanner scanner) {
         for (int i = 0; i < 3; i++) {
-            System.out.println("-> C'est le " + (i + 1) + "e tour\n"+"------------Affichage des cartes-------------\n");
+            System.out
+                    .println("-> C'est le " + (i + 1) + "e tour\n" + "------------Affichage des cartes-------------\n");
             for (int k = 0; k < 3; k++) {
                 System.out.println("Joueur "
                         + (this.joueurs.get(k).getColor() == Color.BLUE ? "bleu :"
@@ -299,11 +292,36 @@ public class Partie {
                         : this.joueurs.get(k).getStrat()[i] == CommandCards.EXPLORE ? "Explore" : "Exterminate"));
             }
             for (int j = 0; j < 3; j++) {
+                System.out.println();
                 this.joueurs.get(j).jouerTour(i, scanner);
             }
         }
     }
 
+    /**
+     * Permet à tout le monde de savoir en début de partie quel bot est agressif et
+     * quel bot est aléatoire.
+     */
+    public void devoilerJoueurs() {
+        System.err.println("\n");
+        for (int i = 0; i < 3; i++) {
+            if (this.joueurs.get(i) instanceof VraiJoueur) {
+                continue;
+            }
+            System.out.println("Bot " + (this.joueurs.get(i).getColor() == Color.BLUE ? "bleu"
+                    : this.joueurs.get(i).getColor() == Color.GREEN ? "vert" : "jaune") + " est un bot "
+                    + ((this.joueurs.get(i) instanceof BotOffensif) ? "offensif" : "aléatoire"));
+
+        }
+        System.out.println("\n");
+    }
+
+    /**
+     * Permet d'executer une partie de jeu. Appelle toutes les méthodes nécessaires
+     * au déroulement de la partie
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
         System.out.println();
         Partie partie = Partie.getInstance();
@@ -324,7 +342,7 @@ public class Partie {
                 for (int i = 0; i < 2; i++) {
                     while (choix[i] < 1 || choix[i] >= 3) {
                         System.out.println(
-                                "Le " + (i+1) + "e bot offensif(1) ou aléatoire (2) ? ");
+                                "Le " + (i + 1) + "e bot offensif(1) ou aléatoire (2) ? ");
                         choix[i] = Integer.parseInt(scanner.nextLine());
                     }
                 }
@@ -362,13 +380,13 @@ public class Partie {
 
         // Affichage initial du plateau
         partie.affichagePlateau();
-
+        partie.devoilerJoueurs();
         // Phase de déploiement initial
         partie.initialDeployment(scanner);
         // Phase de choix des stratégies
         for (Joueur joueur : partie.joueurs) {
             System.out.println("Joueur " + (joueur.getColor() == Color.BLUE ? "bleu :"
-                    : joueur.getColor() == Color.GREEN ? "vert :" : "jaune :")+"choix de la stratégie");
+                    : joueur.getColor() == Color.GREEN ? "vert :" : "jaune :") + "choix de la stratégie");
             joueur.chooseStrat(scanner);
         }
         partie.perform(scanner);

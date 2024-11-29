@@ -1,11 +1,13 @@
 package plateau;
+
 import java.util.List;
 
 public class Sector {
     public Hex[] hex;
 
     /**
-     * Méthode permettant de "retourner" une carte dans le cas où elle était définie comme une carte étant en haut du plateau
+     * Méthode permettant de "retourner" une carte dans le cas où elle était définie
+     * comme une carte étant en haut du plateau
      * et se retrouve finalement en bas avec la disposition aléatoire
      * 
      * @param list
@@ -103,6 +105,7 @@ public class Sector {
 
     /**
      * Constructeur de la classe
+     * 
      * @param hex
      */
     public Sector(Hex[] hex) {

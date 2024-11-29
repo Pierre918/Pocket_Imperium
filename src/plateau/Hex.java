@@ -8,7 +8,8 @@ import vaisseaux.Ship;
 
 /**
  * La classe Hex représente un hexagone dans le plateau de jeu.
- * L'attribut static plateau permet de convertir un id représenté pour le joueur en un id de secteur et un id d'hexagone au sein de ce secteur
+ * L'attribut static plateau permet de convertir un id représenté pour le joueur
+ * en un id de secteur et un id d'hexagone au sein de ce secteur
  */
 public class Hex {
     /**
@@ -59,12 +60,12 @@ public class Hex {
                 if (this.ships.size() > nbShips) {
                     this.deleteShips(this.ships.size() - nbShips);
                     return;
-                }else{
+                } else {
                     this.ships = new ArrayList<>();
                     nbShips = nbShips - this.ships.size();
                 }
             }
-        }     
+        }
         for (int i = 0; i < nbShips; i++) {
             this.ships.add(new Ship(joueur));
         }
@@ -162,7 +163,7 @@ public class Hex {
     }
 
     int[][] adjacents;
-    
+
     public static int[][] plateau = {
             { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 },
             { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 2 }, { 2, 3 },
@@ -190,8 +191,10 @@ public class Hex {
     };
 
     /**
-     * Méthode permettant de retrouver l'id d'un hexagone (celui visible pour le joueur), à partir de l'id du secteur et l'id de 
+     * Méthode permettant de retrouver l'id d'un hexagone (celui visible pour le
+     * joueur), à partir de l'id du secteur et l'id de
      * l'hexagone dans le secteur
+     * 
      * @param array
      * @param target
      * @return
@@ -204,6 +207,7 @@ public class Hex {
         }
         return -1;
     }
+
     /**
      * Obtient les hexagones adjacents.
      *
@@ -306,6 +310,6 @@ public class Hex {
      */
     public static void main(String[] args) {
         System.out.println("null");
-        System.out.println(Hex.plateau[4][0]+" "+Hex.plateau[4][1]);
+        System.out.println(Hex.plateau[4][0] + " " + Hex.plateau[4][1]);
     }
 }

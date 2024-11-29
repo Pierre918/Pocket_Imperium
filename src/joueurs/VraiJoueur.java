@@ -191,12 +191,18 @@ public class VraiJoueur extends Joueur {
         };
 
         System.out.println("Action EXTERMINATE : vous pouvez envahir " + systemsToInvade + " systèmes.");
-
+        ArrayList<int[]> doNotUse = new ArrayList<>();
         // Gérer les invasions
         while (systemsToInvade > 0) {
             ArrayList<Integer> myHexIds = new ArrayList<>();
             for (Hex hex : this.getControlledHex(this)) {
-                myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
+                if (!containsArray(doNotUse, new int[] { hex.getIdSector(), hex.getId() })) {
+                    myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
+                }
+            }
+            if (myHexIds.size() == 0) {
+                System.out.println("Plus de vaisseaux valables");
+                break;
             }
             // Demander l'hexagone de départ
             boolean goodAnsw = false;
@@ -240,7 +246,7 @@ public class VraiJoueur extends Joueur {
                     System.out.println("Hexagone non adjacent ou déjà contrôlé. Veuillez réessayer.");
                 } else {
                     goodAnsw = true;
-                    myHexIds.remove(Integer.valueOf(targetHexId));
+                    doNotUse.add(Hex.plateau[targetHexId]);
                 }
             }
 
@@ -281,11 +287,18 @@ public class VraiJoueur extends Joueur {
                 + " flottes, chaque flotte pouvant se déplacer de 2 hexagones.");
 
         // Déplacement des flottes
+        ArrayList<int[]> doNotUse = new ArrayList<int[]>();
         boolean inTriPrime = false;
         while (fleetsToMove > 0) {
             ArrayList<Integer> myHexIds = new ArrayList<>();
             for (Hex hex : this.getControlledHex(this)) {
-                myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
+                if (!containsArray(doNotUse, new int[] { hex.getIdSector(), hex.getId() })) {
+                    myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
+                }
+            }
+            if (myHexIds.size() == 0) {
+                System.out.println("Plus aucun vaisseaux valables");
+                break;
             }
             int startHexId = -1;
             while (!myHexIds.contains(startHexId)) {
@@ -301,43 +314,55 @@ public class VraiJoueur extends Joueur {
                     System.out.println("Aucun vaisseau dans cet hexagone. Déplacement annulé.");
                     startHexId = -1;
                 }
-                if (startHexId == 24 && inTriPrime) {
+
+            }
+            inTriPrime = false;
+            for (int j = 0; j < 2; j++) {
+                int targetHexId = -1;
+                if (inTriPrime) {
                     System.out.println("Vous ne pouvez pas déplacer une flotte à travers Tri Prime");
+                    break;
                 }
+                do {
+                    System.out.println("Entrez l'ID de l'hexagone cible : ");
+                    targetHexId = scanner.nextInt();
+
+                    // Vérifie si l'hexagone cible est adjacent et non occupé par un autre joueur
+                    if (!isHexAdjacentAndFree(startHexId, targetHexId)) {
+                        System.out
+                                .println(
+                                        "L'hexagone cible n'est pas valide (pas adjacent ou occupé). Déplacement annulé.");
+                    } else if (targetHexId == 24) {
+                        doNotUse.add(Hex.plateau[targetHexId]);
+                        inTriPrime = true;
+                    }
+                } while (!isHexAdjacentAndFree(startHexId, targetHexId));
+
+                int nbShipsMoving = -1;
+                int i = 0;
+                while (nbShipsMoving <= 0
+                        || nbShipsMoving > partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]]
+                                .getShips().size()) {
+                    if (i > 0) {
+                        System.out.println("Sélection invalide");
+                    }
+                    System.out.println("Choisissez le nombre de vaisseaux que vous souhaitez déplacer : ");
+                    nbShipsMoving = scanner.nextInt();
+                    i++;
+                }
+
+                moveFleet(startHexId, targetHexId, nbShipsMoving);
+                if (j == 1) {
+                    doNotUse.add(Hex.plateau[targetHexId]);
+                }
+                startHexId = targetHexId;
+                System.out.println("L'hexagone de départ est maintenant l'hexagone que vous venez d'envahir.");
+                partie.closeImage();
+                partie.affichagePlateau();
             }
-            int targetHexId = -1;
-            do {
-                System.out.println("Entrez l'ID de l'hexagone cible : ");
-                targetHexId = scanner.nextInt();
-
-                // Vérifie si l'hexagone cible est adjacent et non occupé par un autre joueur
-                if (!isHexAdjacentAndFree(startHexId, targetHexId)) {
-                    System.out
-                            .println("L'hexagone cible n'est pas valide (pas adjacent ou occupé). Déplacement annulé.");
-                } else if (targetHexId == 24) {
-                    inTriPrime = true;
-                }
-            } while (!isHexAdjacentAndFree(startHexId, targetHexId));
-
-            int nbShipsMoving = -1;
-            int i = 0;
-            while (nbShipsMoving < 0
-                    || nbShipsMoving > partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]]
-                            .getShips().size()) {
-                if (i > 0) {
-                    System.out.println("Sélection invalide");
-                }
-                System.out.println("Choisissez le nombre de vaisseaux que vous souhaitez déplacer : ");
-                nbShipsMoving = scanner.nextInt();
-                i++;
-            }
-
-            moveFleet(startHexId, targetHexId, nbShipsMoving);
-
             fleetsToMove--; // Réduit le nombre de flottes restantes
         }
-        partie.closeImage();
-        partie.affichagePlateau();
+
         System.out.println("Exploration terminée.");
     }
 }
