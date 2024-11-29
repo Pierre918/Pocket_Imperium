@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 import partie.Partie;
 import plateau.Hex;
 
@@ -64,10 +63,8 @@ public abstract class Joueur {
      *
      * @param playersChoosingExpand Le nombre de joueurs ayant choisi l'action
      *                              EXPAND ce round.
-     * @param scanner               Le scanner pour lire les entrées de
-     *                              l'utilisateur.
      */
-    public abstract void expand(int playersChoosingExpand, Scanner scanner);
+    public abstract void expand(int playersChoosingExpand);
 
     /**
      * Exécute l'action EXPLORE, permettant au joueur de déplacer des flottes vers
@@ -75,10 +72,8 @@ public abstract class Joueur {
      *
      * @param playersChoosingExplore Le nombre de joueurs ayant choisi l'action
      *                               EXPLORE ce round.
-     * @param scanner                Le scanner pour lire les entrées de
-     *                               l'utilisateur.
      */
-    public abstract void explore(int playersChoosingExplore, Scanner scanner);
+    public abstract void explore(int playersChoosingExplore);
 
     /**
      * Déplace une flotte vers un nouvel hexagone.
@@ -111,13 +106,12 @@ public abstract class Joueur {
      * Choisi également un hexagone adjacent et un nombre de vaisseaux pour
      * attaquer.
      * 
-     * @param scanner
      * @param systemsToInvade
      * @param doNotUse        hexagones a ne pas utilisé car contiennent des
      *                        vaisseaux déjà utilisés
      * @return
      */
-    public int exterminateRandom(Scanner scanner, int systemsToInvade, ArrayList<int[]> doNotUse) {
+    public int exterminateRandom(int systemsToInvade, ArrayList<int[]> doNotUse) {
         Partie partie = Partie.getInstance();
 
         // Détermine le nombre de systèmes pouvant être envahis en fonction des joueurs
@@ -223,9 +217,8 @@ public abstract class Joueur {
      * 
      * @param i
      * @param j
-     * @param scanner
      */
-    public abstract void initialDeployment(Integer i, Integer j, Scanner scanner);
+    public abstract void initialDeployment(Integer i, Integer j);
 
     /**
      * Exécute l'action EXTERMINATE, permettant au joueur d'envahir des systèmes
@@ -233,10 +226,8 @@ public abstract class Joueur {
      *
      * @param playersChoosingExterminate Le nombre de joueurs ayant choisi l'action
      *                                   EXTERMINATE ce round.
-     * @param scanner                    Le scanner pour lire les entrées de
-     *                                   l'utilisateur.
      */
-    public abstract void exterminate(int playersChoosingExterminate, Scanner scanner);
+    public abstract void exterminate(int playersChoosingExterminate);
 
     /**
      * Permet l'invasion d'un système par un joueur. Est utilisé la méthode
@@ -347,9 +338,8 @@ public abstract class Joueur {
      * Méthode abstraite pour choisir une stratégie.
      * Cette méthode doit être implémentée par les sous-classes.
      *
-     * @param scanner Le scanner pour lire les entrées utilisateur.
      */
-    public abstract void chooseStrat(Scanner scanner);
+    public abstract void chooseStrat();
 
     /**
      * Retourne le score actuel du joueur.
@@ -434,24 +424,23 @@ public abstract class Joueur {
      * définie par le joueur.
      * 
      * @param n_tour
-     * @param scanner
      */
-    public void jouerTour(int n_tour, Scanner scanner) {
+    public void jouerTour(int n_tour) {
         int conflictCount = numberSameCard(n_tour, this.strat[n_tour]);
         if (!hasJoueurShipsLeft()) {
             System.out.println("Aucun vaisseaux");
             return;
         }
         if (this.strat[n_tour] == CommandCards.EXPAND) {
-            this.expand(conflictCount, scanner);
+            this.expand(conflictCount);
             return;
         }
         if (this.strat[n_tour] == CommandCards.EXPLORE) {
-            this.explore(conflictCount, scanner);
+            this.explore(conflictCount);
             return;
         }
         if (this.strat[n_tour] == CommandCards.EXTERMINATE) {
-            this.exterminate(conflictCount, scanner);
+            this.exterminate(conflictCount);
             return;
         }
     }
@@ -461,7 +450,6 @@ public abstract class Joueur {
      * manière aléatoire
      * Choisi aléatoirement un hexagone adjacent et un nombre de vaisseaux pour se
      * déplacer.
-     * @param scanner
      * @param fleetsToMove
      * @param doNotUse     hexagone à ne pas utiliser car contiennent des bateaux
      *                     déjà utilisé
@@ -470,7 +458,7 @@ public abstract class Joueur {
      *                     de départ n'est définie
      * @return
      */
-    public int exploreRandom(Scanner scanner, int fleetsToMove,
+    public int exploreRandom(int fleetsToMove,
             ArrayList<int[]> doNotUse, int nbMoves, int startHexId) {
         System.out.println("explore random");
         System.out.println(fleetsToMove);

@@ -4,20 +4,18 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import command.Command;
 import joueurs.BotOffensif;
 import joueurs.BotRandom;
 import joueurs.CommandCards;
 import joueurs.Joueur;
 import joueurs.VraiJoueur;
-import plateau.Hex;
 import plateau.Sector;
 
 /**
@@ -261,15 +259,14 @@ public class Partie {
     /**
      * Méthode pour le déploiement initial des joueurs.
      *
-     * @param scanner Le scanner pour lire les entrées utilisateur.
      */
-    public void initialDeployment(Scanner scanner) {
+    public void initialDeployment() {
 
         for (int i = 0; i < 2; i++) {
             System.out.println("Chaque joueur ajoute 1 vaisseaux.");
             for (int j = (i == 0 ? 0 : this.joueurs.size() - 1); (i == 0 ? j < this.joueurs.size()
                     : j >= 0); j = (i == 0 ? j + 1 : j - 1)) {
-                this.joueurs.get(j).initialDeployment(i, j, scanner);
+                this.joueurs.get(j).initialDeployment(i, j);
             }
         }
     }
@@ -278,9 +275,8 @@ public class Partie {
      * Méthode permettant d'exécuter la partie perform du jeu. Appelle chacune des
      * méthodes jouer tour des joueurs tout en affichant leur cartes
      * 
-     * @param scanner
      */
-    public void perform(Scanner scanner) {
+    public void perform() {
         for (int i = 0; i < 3; i++) {
             System.out
                     .println("-> C'est le " + (i + 1) + "e tour\n" + "------------Affichage des cartes-------------\n");
@@ -293,7 +289,7 @@ public class Partie {
             }
             for (int j = 0; j < 3; j++) {
                 System.out.println();
-                this.joueurs.get(j).jouerTour(i, scanner);
+                this.joueurs.get(j).jouerTour(i);
             }
         }
     }
@@ -327,24 +323,20 @@ public class Partie {
         Partie partie = Partie.getInstance();
         partie.setup();
         int nom = -1;
-        Scanner scanner = new Scanner(System.in);
 
         // Sélection du type de joueurs
-        while (nom < 1 || nom > 3) {
-            System.out.println(
-                    "Sélectionnez 1/2/3 : 2 joueurs virtuels (1)/1 joueur virtuel et un vrai joueur (2)/2 vrais joueurs (3) :");
-            nom = Integer.parseInt(scanner.nextLine());
-        }
+        System.out.println(
+                "Sélectionnez 1/2/3 : 2 joueurs virtuels (1)/1 joueur virtuel et un vrai joueur (2)/2 vrais joueurs (3) :");
+        nom = Command.askInteger(0, 4, "erreur");
 
         switch (nom) {
             case 1: {
                 Integer[] choix = { -1, -1 };
                 for (int i = 0; i < 2; i++) {
-                    while (choix[i] < 1 || choix[i] >= 3) {
-                        System.out.println(
-                                "Le " + (i + 1) + "e bot offensif(1) ou aléatoire (2) ? ");
-                        choix[i] = Integer.parseInt(scanner.nextLine());
-                    }
+                    System.out.println(
+                            "Le " + (i + 1) + "e bot offensif(1) ou aléatoire (2) ? ");
+                    choix[i] = Command.askInteger(0, 3, "Erreur");
+
                 }
 
                 partie.joueurs = Arrays.asList(
@@ -354,12 +346,11 @@ public class Partie {
                 break;
             }
             case 2: {
-                Integer choix = -1;
-                while (choix < 1 || choix >= 3) {
-                    System.out.println(
-                            "Le bot est un bot offensif(1) ou aléatoire (2) ? ");
-                    choix = Integer.parseInt(scanner.nextLine());
-                }
+                int choix = -1;
+                System.out.println(
+                        "Le bot est un bot offensif(1) ou aléatoire (2) ? ");
+
+                choix = Command.askInteger(0, 3, "Erreur");
 
                 partie.joueurs = Arrays.asList(
                         choix == 2 ? new BotRandom(Color.GREEN) : new BotOffensif(Color.GREEN),
@@ -382,14 +373,14 @@ public class Partie {
         partie.affichagePlateau();
         partie.devoilerJoueurs();
         // Phase de déploiement initial
-        partie.initialDeployment(scanner);
+        partie.initialDeployment();
         // Phase de choix des stratégies
         for (Joueur joueur : partie.joueurs) {
             System.out.println("Joueur " + (joueur.getColor() == Color.BLUE ? "bleu :"
                     : joueur.getColor() == Color.GREEN ? "vert :" : "jaune :") + "choix de la stratégie");
-            joueur.chooseStrat(scanner);
+            joueur.chooseStrat();
         }
-        partie.perform(scanner);
+        partie.perform();
     }
 
 }

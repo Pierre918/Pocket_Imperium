@@ -3,7 +3,6 @@ package joueurs;
 import java.awt.Color;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 import partie.Partie;
 import plateau.Hex;
@@ -30,10 +29,9 @@ public class BotRandom extends Joueur {
      * Le bot choisit une stratégie pour le tour.
      * Ici, cela n'a pas de sens, mais est requis par la classe mère.
      * 
-     * @param scanner
      */
     @Override
-    public void chooseStrat(Scanner scanner) {
+    public void chooseStrat() {
         // Convertir les valeurs de l'énumération en une liste
         List<CommandCards> cardList = new ArrayList<>(List.of(CommandCards.values()));
 
@@ -53,10 +51,9 @@ public class BotRandom extends Joueur {
      * Tout cela en prenant en compte le nombre de personne qui jouent la même carte
      * 
      * @param playersChoosingExpand
-     * @param scanner
      */
     @Override
-    public void expand(int playersChoosingExpand, Scanner scanner) {
+    public void expand(int playersChoosingExpand) {
         int shipsToAdd;
         shipsToAdd = switch (playersChoosingExpand) {
             case 1 -> 3;
@@ -97,9 +94,8 @@ public class BotRandom extends Joueur {
      * 
      * @param i
      * @param j
-     * @param scanner
      */
-    public void initialDeployment(Integer i, Integer j, Scanner scanner) {
+    public void initialDeployment(Integer i, Integer j) {
         Partie partie = Partie.getInstance();
         ArrayList<Hex> level1Hexs = new ArrayList<Hex>();
         for (int k = 0; k < partie.sector.length; k++) {
@@ -124,10 +120,9 @@ public class BotRandom extends Joueur {
      * Implémentation de la méthode exterminate de manière aléatoire.
      * 
      * @param playersChoosingExterminate
-     * @param scanner
      */
     @Override
-    public void exterminate(int playersChoosingExterminate, Scanner scanner) {
+    public void exterminate(int playersChoosingExterminate) {
         int systemsToInvade = switch (playersChoosingExterminate) {
             case 1 -> 3;
             case 2 -> 2;
@@ -136,7 +131,7 @@ public class BotRandom extends Joueur {
         System.out.println("Bot " + (this.getColor() == Color.BLUE ? "bleu"
                 : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXTERMINATE.");
         ArrayList<int[]> doNotUse = new ArrayList<>();
-        this.exterminateRandom(scanner, systemsToInvade, doNotUse);
+        this.exterminateRandom(systemsToInvade, doNotUse);
         System.out.println("Extermination terminée.");
     }
 
@@ -145,10 +140,9 @@ public class BotRandom extends Joueur {
      * Implémentation de la méthode exterminate de manière aléatoire.
      * 
      * @param playersChoosingExplore
-     * @param scanner
      */
     @Override
-    public void explore(int playersChoosingExplore, Scanner scanner) {
+    public void explore(int playersChoosingExplore) {
         int fleetsToMove = switch (playersChoosingExplore) {
             case 1 -> 3;
             case 2 -> 2;
@@ -157,7 +151,7 @@ public class BotRandom extends Joueur {
         System.out.println("Bot " + (this.getColor() == Color.BLUE ? "bleu"
                 : this.getColor() == Color.GREEN ? "vert" : "jaune") + " exécute l'action EXPLORE.");
         ArrayList<int[]> doNotUse = new ArrayList<>();
-        exploreRandom(scanner, fleetsToMove, doNotUse, 2, -1);
+        exploreRandom(fleetsToMove, doNotUse, 2, -1);
         System.out.println("Exploration terminée.");
     }
 

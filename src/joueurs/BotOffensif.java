@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-import java.util.Scanner;
 
 import partie.Partie;
 import plateau.Hex;
@@ -33,10 +32,9 @@ public class BotOffensif extends Joueur {
      * Sinon choisi au hasard un hexagone qu'il contrôle.
      * 
      * @param playersChoosingExpand
-     * @param scanner
      */
     @Override
-    public void expand(int playersChoosingExpand, Scanner scanner) {
+    public void expand(int playersChoosingExpand) {
         int shipsToAdd;
         shipsToAdd = switch (playersChoosingExpand) {
             case 1 -> 3;
@@ -99,10 +97,9 @@ public class BotOffensif extends Joueur {
      * @param i       Permet de connaitre le numéro du tour
      * @param j       Permet de savoir si ce joueur est le premier a jouer dans le
      *                tour
-     * @param scanner
      */
     @Override
-    public void initialDeployment(Integer i, Integer j, Scanner scanner) {
+    public void initialDeployment(Integer i, Integer j) {
         Partie partie = Partie.getInstance();
         ArrayList<Hex> level1HexsTaken = new ArrayList<Hex>();
         ArrayList<Hex> level1Hexs = new ArrayList<Hex>();
@@ -148,10 +145,9 @@ public class BotOffensif extends Joueur {
     /**
      * La stratégie est toujours la même : attaquer en priorité.
      * 
-     * @param scanner
      */
     @Override
-    public void chooseStrat(Scanner scanner) {
+    public void chooseStrat() {
         this.strat[0] = CommandCards.EXTERMINATE;
         this.strat[1] = CommandCards.EXPLORE;
         this.strat[2] = CommandCards.EXPAND;
@@ -163,10 +159,9 @@ public class BotOffensif extends Joueur {
      * Sinon, il envahi de manière aléatoir un hexagone
      * 
      * @param playersChoosingExterminate
-     * @param scanner
      */
     @Override
-    public void exterminate(int playersChoosingExterminate, Scanner scanner) {
+    public void exterminate(int playersChoosingExterminate) {
         int systemsToInvade;
         Partie partie = Partie.getInstance();
         System.out.println("Bot " + (this.getColor() == Color.BLUE ? "bleu"
@@ -221,7 +216,7 @@ public class BotOffensif extends Joueur {
                 // Réduire le nombre de systèmes restants à envahir
 
             } else {
-                doNotUse.add(Hex.plateau[this.exterminateRandom(scanner, 1, doNotUse)]);
+                doNotUse.add(Hex.plateau[this.exterminateRandom(1, doNotUse)]);
             }
             systemsToInvade--;
         }
@@ -283,11 +278,9 @@ public class BotOffensif extends Joueur {
      * aléatoire.
      *
      * @param playersChoosingExplore Le nombre de joueurs choisissant d'explorer.
-     * @param scanner                Un objet Scanner pour lire les entrées
-     *                               utilisateur.
      */
     @Override
-    public void explore(int playersChoosingExplore, Scanner scanner) {
+    public void explore(int playersChoosingExplore) {
         int fleetsToMove;
         Partie partie = Partie.getInstance();
         System.out.println("Bot " + (this.getColor() == Color.BLUE ? "bleu"
@@ -341,7 +334,7 @@ public class BotOffensif extends Joueur {
                     }
 
                 } else {
-                    targetHexId = this.exploreRandom(scanner, 1, doNotUse, 1, startHexId);
+                    targetHexId = this.exploreRandom(1, doNotUse, 1, startHexId);
                 }
                 startHexId = targetHexId;
                 if (i == 1) {

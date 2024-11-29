@@ -2,8 +2,8 @@ package joueurs;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Scanner;
 
+import command.Command;
 import partie.Partie;
 import plateau.Hex;
 
@@ -28,10 +28,9 @@ public class VraiJoueur extends Joueur {
     /**
      * Permet au joueur de choisir l'ordre de ses cartes de commande pour le round.
      *
-     * @param scanner Le scanner utilisé pour lire les entrées de l'utilisateur.
      */
     @Override
-    public void chooseStrat(Scanner scanner) {
+    public void chooseStrat() {
         CommandCards[] strat = { null, null, null };
         int choix;
         for (int i = 0; i < 3; i++) {
@@ -39,7 +38,7 @@ public class VraiJoueur extends Joueur {
             while (choix < 1 || choix > 3) {
                 System.out.println("Choisissez votre " + (i + 1)
                         + "e carte pour le round (expand : 1 / explore : 2 / exterminate : 3)");
-                choix = Integer.parseInt(scanner.nextLine());
+                choix = Command.askInteger(0, 4, "Erreur");
 
                 CommandCards carteChoisie = choix == 1 ? CommandCards.EXPAND
                         : choix == 2 ? CommandCards.EXPLORE
@@ -62,19 +61,18 @@ public class VraiJoueur extends Joueur {
      * 
      * @param i
      * @param j
-     * @param scanner
      */
-    public void initialDeployment(Integer i, Integer j, Scanner scanner) {
+    public void initialDeployment(Integer i, Integer j) {
         Partie partie = Partie.getInstance();
         int choix = -1;
         boolean isCorrect = false;
-        while ((choix < 0 || choix > 48) || !isCorrect) {
+        while (!isCorrect) {
             System.out.println(
                     "Joueur "
                             + (partie.joueurs.get(j).getColor() == Color.BLUE ? "bleu"
                                     : partie.joueurs.get(j).getColor() == Color.GREEN ? "vert" : "jaune")
                             + ", sélectionnez le numéro d'un système de niveau 1 innocupé  :");
-            choix = Integer.parseInt(scanner.nextLine());
+            choix = Command.askInteger(-1, 49, "Erreur");
             if (partie.sector[Hex.plateau[choix][0]].hex[Hex.plateau[choix][1]].getShips().isEmpty()
                     && partie.sector[Hex.plateau[choix][0]].hex[Hex.plateau[choix][1]].getPlanetContained() == 1
                     && !partie.sectorIsTaken(partie.sector[Hex.plateau[choix][0]])) {
@@ -118,10 +116,9 @@ public class VraiJoueur extends Joueur {
      * 
      * @param playersChoosingExpand Nombre de joueurs qui ont choisi la meme carte
      *                              que le joueur
-     * @param scanner
      */
     @Override
-    public void expand(int playersChoosingExpand, Scanner scanner) {
+    public void expand(int playersChoosingExpand) {
         int shipsToAdd;
         System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
                 : this.getColor() == Color.GREEN ? "vert" : "jaune") + " :\nExécute l'action EXPAND.");
@@ -145,7 +142,7 @@ public class VraiJoueur extends Joueur {
             boolean isValid = false;
             while (!isValid) {
                 System.out.println("Entrez l'ID de l'hexagone où vous souhaitez ajouter un vaisseau : ");
-                Integer hexId = scanner.nextInt();
+                Integer hexId = Command.askInteger(-1, 49, "Erreur");
 
                 // Trouve l'hexagone correspondant
                 if (this.isHexControlledByMe(hexId, this)) {
@@ -174,10 +171,8 @@ public class VraiJoueur extends Joueur {
      *
      * @param playersChoosingExterminate Le nombre de joueurs qui choisissent la
      *                                   même carte EXTERMINATE.
-     * @param scanner                    L'objet Scanner utilisé pour lire les
-     *                                   entrées de l'utilisateur.
      */
-    public void exterminate(int playersChoosingExterminate, Scanner scanner) {
+    public void exterminate(int playersChoosingExterminate) {
         int systemsToInvade;
         Partie partie = Partie.getInstance();
         System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
@@ -209,7 +204,7 @@ public class VraiJoueur extends Joueur {
             Hex startHex = null;
             while (!goodAnsw) {
                 System.out.println("Entrez l'ID de l'hexagone de départ que vous contrôlez pour l'invasion : ");
-                int startHexId = scanner.nextInt();
+                int startHexId = Command.askInteger(-1, 49, "Erreur");
 
                 // Vérifie si l'hexagone de départ est contrôlé
                 startHex = partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]];
@@ -222,24 +217,18 @@ public class VraiJoueur extends Joueur {
             }
             goodAnsw = false;
             int shipsToUse = -1;
-            // Demander le nombre de vaisseaux à utiliser pour l'invasion
-            while (!goodAnsw) {
-                System.out.println("Entrez le nombre de vaisseaux que vous souhaitez utiliser (maximum : "
-                        + startHex.getShips().size() + ") : ");
-                shipsToUse = scanner.nextInt();
 
-                if (shipsToUse <= 0 || shipsToUse > startHex.getShips().size()) {
-                    System.out.println("Nombre de vaisseaux non valide. Veuillez réessayer.");
-                } else {
-                    goodAnsw = true;
-                }
-            }
+            System.out.println("Entrez le nombre de vaisseaux que vous souhaitez utiliser (maximum : "
+                    + startHex.getShips().size() + ") : ");
+            shipsToUse = Command.askInteger(0, startHex.getShips().size() + 1,
+                    "Nombre de vaisseaux non valide. Veuillez réessayer.");
+
             goodAnsw = false;
             int targetHexId = -1;
             // Demander l'hexagone cible
             while (!goodAnsw) {
                 System.out.println("Entrez l'ID de l'hexagone cible : ");
-                targetHexId = scanner.nextInt();
+                targetHexId = Command.askInteger(-1, 49, "Erreur");
 
                 // Vérifie si l'hexagone cible est adjacent et non contrôlé par ce joueur
                 if (!this.isHexAdjacent(startHex, targetHexId)) {
@@ -267,11 +256,9 @@ public class VraiJoueur extends Joueur {
      * Chaque flotte peut se déplacer de 2 hexagones.
      *
      * @param playersChoosingExplore Le nombre de joueurs qui choisissent la même
-     *                               carte EXPLORE.
-     * @param scanner                L'objet Scanner utilisé pour lire les entrées
-     *                               de l'utilisateur.
+     *                               carte EXPLORE..
      */
-    public void explore(int playersChoosingExplore, Scanner scanner) {
+    public void explore(int playersChoosingExplore) {
         int fleetsToMove;
         Partie partie = Partie.getInstance();
         System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu"
@@ -304,7 +291,7 @@ public class VraiJoueur extends Joueur {
             while (!myHexIds.contains(startHexId)) {
                 System.out.println("Entrez l'ID d'hexagone que vous contrôlez pour le départ de la flotte : ");
 
-                startHexId = scanner.nextInt();
+                startHexId = Command.askInteger(-1, 49, "Erreur");
 
                 // Trouve l'hexagone de départ
                 if (!myHexIds.contains(startHexId)) {
@@ -325,7 +312,7 @@ public class VraiJoueur extends Joueur {
                 }
                 do {
                     System.out.println("Entrez l'ID de l'hexagone cible : ");
-                    targetHexId = scanner.nextInt();
+                    targetHexId = Command.askInteger(-1, 49, "Erreur");
 
                     // Vérifie si l'hexagone cible est adjacent et non occupé par un autre joueur
                     if (!isHexAdjacentAndFree(startHexId, targetHexId)) {
@@ -339,17 +326,12 @@ public class VraiJoueur extends Joueur {
                 } while (!isHexAdjacentAndFree(startHexId, targetHexId));
 
                 int nbShipsMoving = -1;
-                int i = 0;
-                while (nbShipsMoving <= 0
-                        || nbShipsMoving > partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]]
-                                .getShips().size()) {
-                    if (i > 0) {
-                        System.out.println("Sélection invalide");
-                    }
-                    System.out.println("Choisissez le nombre de vaisseaux que vous souhaitez déplacer : ");
-                    nbShipsMoving = scanner.nextInt();
-                    i++;
-                }
+
+                System.out.println("Choisissez le nombre de vaisseaux que vous souhaitez déplacer : ");
+                nbShipsMoving = Command.askInteger(0,
+                        partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]]
+                                .getShips().size() + 1,
+                        "Sélection invalide");
 
                 moveFleet(startHexId, targetHexId, nbShipsMoving);
                 if (j == 1) {
