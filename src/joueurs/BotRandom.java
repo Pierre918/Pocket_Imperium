@@ -6,6 +6,7 @@ import java.util.Random;
 
 import partie.Partie;
 import plateau.Hex;
+import plateau.Sector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,6 +61,10 @@ public class BotRandom extends Joueur {
             case 2 -> 2;
             default -> 1;
         };
+        if (this.getControlledHex(this).isEmpty()){
+            System.out.println("Plus de vaisseau sur le plateau");
+            return;
+        }
         if (this.nbShipsSupply < shipsToAdd) {
             System.out.println("Il n'y a pas assez de vaisseaux en réserve.");
             shipsToAdd = this.nbShipsSupply; // Limite à la réserve disponible
@@ -101,7 +106,7 @@ public class BotRandom extends Joueur {
         for (int k = 0; k < partie.sector.length; k++) {
             for (int l = 0; l < partie.sector[k].hex.length; l++) {
                 if (partie.sector[k].hex[l].getPlanetContained() == 1 && partie.sector[k].hex[l].getShips().isEmpty()
-                        && !partie.sectorIsTaken(partie.sector[k])) {
+                        && !partie.sectorIsTakenL1(partie.sector[k])) {
                     level1Hexs.add(partie.sector[k].hex[l]);
                 }
             }
@@ -155,4 +160,33 @@ public class BotRandom extends Joueur {
         System.out.println("Exploration terminée.");
     }
 
+    public ArrayList<Sector> scoreSector(ArrayList<Sector> cardsChosen, int coef) {
+        Partie partie = Partie.getInstance();
+        for (int j = 0; j < (this.controlsTriPrime() && coef!=2 ? 2 : 1); j++) {
+            if (cardsChosen.size() == Sector.nbSectorTaken()) {
+                break;
+            }
+            Random random = new Random();
+            int n=random.nextInt(partie.sector.length);
+            Sector choix = partie.sector[n];
+            while (cardsChosen.contains(choix) || !partie.sectorIsTaken(choix) || n==4) {
+                n=random.nextInt(partie.sector.length);
+                choix = partie.sector[n];
+            }
+            cardsChosen.add(partie.sector[n]);
+            for (Hex hex : partie.sector[n].hex) {
+                if (!hex.getShips().isEmpty()) {
+                    if (hex.getShips().get(0).joueur == this) {
+                        this.ajouterScore(hex.getPlanetContained() * coef);
+                    }
+                }
+            }
+            System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu "
+                    : this.getColor() == Color.GREEN ? "vert " : "jaune ")+" choisi le secteur n°"+(n+1));
+            System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu "
+                    : this.getColor() == Color.GREEN ? "vert " : "jaune ") + "a "
+                    + this.getScore() + " points");
+        }
+        return cardsChosen;
+    }
 }

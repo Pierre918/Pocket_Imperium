@@ -7,6 +7,7 @@ import java.util.Random;
 
 import partie.Partie;
 import plateau.Hex;
+import plateau.Sector;
 
 /**
  * La classe BotOffensif représente un robot virtuel de type offensif dans le
@@ -41,6 +42,10 @@ public class BotOffensif extends Joueur {
             case 2 -> 2;
             default -> 1;
         };
+        if (this.getControlledHex(this).isEmpty()){
+            System.out.println("Plus de vaisseau sur le plateau");
+            return;
+        }
         if (this.nbShipsSupply < shipsToAdd) {
             System.out.println("Il n'y a pas assez de vaisseaux en réserve.");
             shipsToAdd = this.nbShipsSupply; // Limite à la réserve disponible
@@ -94,9 +99,9 @@ public class BotOffensif extends Joueur {
      * contraintes liées au déploiement initial.
      * Sinon il se place sur un hexagone aléaoire de niveau 1.
      * 
-     * @param i       Permet de connaitre le numéro du tour
-     * @param j       Permet de savoir si ce joueur est le premier a jouer dans le
-     *                tour
+     * @param i Permet de connaitre le numéro du tour
+     * @param j Permet de savoir si ce joueur est le premier a jouer dans le
+     *          tour
      */
     @Override
     public void initialDeployment(Integer i, Integer j) {
@@ -109,7 +114,7 @@ public class BotOffensif extends Joueur {
                     level1HexsTaken.add(partie.sector[k].hex[l]);
                 }
                 if (partie.sector[k].hex[l].getPlanetContained() == 1 && partie.sector[k].hex[l].getShips().isEmpty()
-                        && !partie.sectorIsTaken(partie.sector[k])) {
+                        && !partie.sectorIsTakenL1(partie.sector[k])) {
                     level1Hexs.add(partie.sector[k].hex[l]);
                 }
             }
@@ -118,7 +123,7 @@ public class BotOffensif extends Joueur {
                                 // sur le plateaux)
             for (Hex hex : level1HexsTaken) {
                 for (int[] hexAdj : hex.getAdjacents()) {
-                    if (!partie.sectorIsTaken(partie.sector[hexAdj[0]])
+                    if (!partie.sectorIsTakenL1(partie.sector[hexAdj[0]])
                             && partie.sector[hexAdj[0]].hex[hexAdj[1]].getPlanetContained() == 1
                             && partie.sector[hexAdj[0]].hex[hexAdj[1]].getShips().isEmpty()) {
                         partie.sector[hexAdj[0]].hex[hexAdj[1]].addShips(2, this);
@@ -178,8 +183,6 @@ public class BotOffensif extends Joueur {
         while (systemsToInvade > 0) {
             ArrayList<Integer> myHexIds = new ArrayList<>();
             for (Hex hex : this.getControlledHex(this)) {
-                System.out.println(hex.getIdSector() + hex.getId());
-                System.out.println(containsArray(doNotUse, new int[] { hex.getIdSector(), hex.getId() }));
                 if (!containsArray(doNotUse, new int[] { hex.getIdSector(), hex.getId() })) {
                     myHexIds.add(Hex.findIndex(Hex.plateau, new int[] { hex.getIdSector(), hex.getId() }));
                 }
@@ -307,10 +310,7 @@ public class BotOffensif extends Joueur {
             int startHexId = -1;
             int targetHexId = -1;
             if (this.getAdjacentsOpponent(myHexIds) != null) {
-                System.out.println("NON NULL");
-
                 startHexId = this.getAdjacentsOpponent(myHexIds)[0];
-                System.out.println(startHexId);
 
             } else {
                 startHexId = myHexIds.get(0);
@@ -321,8 +321,6 @@ public class BotOffensif extends Joueur {
                         .size();
                 ArrayList<Integer> startListHex = new ArrayList<Integer>();
                 startListHex.add(startHexId);
-                System.out.println("startHexID : " + startHexId);
-                System.out.println(getAdjacentsOpponent(startListHex) != null);
                 if (getAdjacentsOpponent(startListHex) != null) {
                     targetHexId = this.getAdjacentsOpponent(startListHex)[1];
 
@@ -347,5 +345,54 @@ public class BotOffensif extends Joueur {
         partie.closeImage();
         partie.affichagePlateau();
         System.out.println("Exploration terminée.");
+    }
+
+    public Sector chooseSector(ArrayList<Sector> cardsChosen) {
+        Partie partie = Partie.getInstance();
+        int maxPoints = -1;
+        int nSecChosen=-1;
+        Sector ans = new Sector(null);
+        for (int i = 0; i < 9; i++) {
+            if (cardsChosen.contains(partie.sector[i]) || i==4 || !partie.sectorIsTaken(partie.sector[i])){
+                continue;
+            }
+            int nPoint = 0;
+            for (int j = 0; j < 6; j++) {
+                if (!partie.sector[i].hex[j].getShips().isEmpty()) {
+                    nPoint += partie.sector[i].hex[j].getPlanetContained();
+                }
+            }
+            if (nPoint > maxPoints) {
+                maxPoints = nPoint;
+                ans = partie.sector[i];
+                nSecChosen=i;
+            }
+        }
+        System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu "
+                    : this.getColor() == Color.GREEN ? "vert " : "jaune ")+" choisi le secteur n°"+(nSecChosen+1));
+        return ans;
+    }
+
+    public ArrayList<Sector> scoreSector(ArrayList<Sector> cardsChosen, int coef) {
+        for (int j = 0; j < (this.controlsTriPrime() && coef!=2 ? 2 : 1); j++) {
+            if (cardsChosen.size() == Sector.nbSectorTaken()) {
+                break;
+            }
+            Sector choix = this.chooseSector(cardsChosen);
+
+            cardsChosen.add(choix);
+            for (Hex hex : choix.hex) {
+                if (!hex.getShips().isEmpty()) {
+                    if (hex.getShips().get(0).joueur == this) {
+                        this.ajouterScore(hex.getPlanetContained() * coef);
+                    }
+                }
+            }
+            
+            System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu "
+                    : this.getColor() == Color.GREEN ? "vert " : "jaune ") + "a "
+                    + this.getScore() + " points");
+        }
+        return cardsChosen;
     }
 }

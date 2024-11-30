@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 import partie.Partie;
 import plateau.Hex;
+import plateau.Sector;
 
 /**
  * La classe abstraite Joueur représente un joueur dans le jeu.
@@ -137,8 +138,6 @@ public abstract class Joueur {
             Collections.shuffle(myHexIds);
             Hex hexChoisi = partie.sector[Hex.plateau[myHexIds.get(0)][0]].hex[Hex.plateau[myHexIds.get(0)][1]];
             Random random = new Random();
-            System.out.println("nb vaisseaux : " + hexChoisi
-                    .getShips().size());
             int nbShipsMoving = hexChoisi
                     .getShips().size() == 1 ? 1
                             : (random
@@ -229,6 +228,14 @@ public abstract class Joueur {
      */
     public abstract void exterminate(int playersChoosingExterminate);
 
+    public static void backToSupply(int hexId, int nbShip){
+        Partie partie = Partie.getInstance();
+        for (int i=0;i<3;i++){
+            if(partie.joueurs.get(i)==partie.sector[Hex.plateau[hexId][0]].hex[Hex.plateau[hexId][1]].getShips().get(0).joueur){
+                partie.joueurs.get(i).nbShipsSupply+=nbShip;
+            }
+        }
+    }
     /**
      * Permet l'invasion d'un système par un joueur. Est utilisé la méthode
      * exterminate implémentée par les classes
@@ -240,10 +247,7 @@ public abstract class Joueur {
      */
     protected void invade(Hex startHex, int targetHexId, int shipsToUse) {
         Partie partie = Partie.getInstance();
-
-        // Supprime le nombre de vaisseaux choisi de l'hexagone de départ
-        partie.sector[startHex.getIdSector()].hex[startHex.getId()].deleteShips(shipsToUse);
-
+        
         int attackerShips = shipsToUse; // Vaisseaux attaquants
         int defenderShips = partie.sector[Hex.plateau[targetHexId][0]].hex[Hex.plateau[targetHexId][1]].getShips()
                 .size(); // Vaisseaux défensifs
@@ -252,6 +256,13 @@ public abstract class Joueur {
                 "Attaquant : " + attackerShips + " vaisseau(x), Défenseur : " + defenderShips + " vaisseau(x)");
 
         int minShips = Math.min(attackerShips, defenderShips);
+
+        if (!partie.sector[Hex.plateau[targetHexId][0]].hex[Hex.plateau[targetHexId][1]].getShips().isEmpty()){
+            backToSupply(targetHexId,minShips);
+            backToSupply(Hex.findIndex(Hex.plateau, new int[] {startHex.getIdSector(),startHex.getId()}),minShips);
+        }
+        // Supprime le nombre de vaisseaux choisi de l'hexagone de départ
+        partie.sector[startHex.getIdSector()].hex[startHex.getId()].deleteShips(shipsToUse);
 
         partie.sector[Hex.plateau[targetHexId][0]].hex[Hex.plateau[targetHexId][1]].deleteShips(minShips);
 
@@ -279,10 +290,10 @@ public abstract class Joueur {
      * @param targetHexId L'ID de l'hexagone cible.
      * @return true si l'hexagone cible est adjacent, false sinon.
      */
-    protected boolean isHexAdjacent(Hex startHex, int targetHexId) {
+    protected boolean isHexAdjacentAndNotMine(Hex startHex, int targetHexId) {
         int[][] adjacents = startHex.getAdjacents();
         for (int[] adjacent : adjacents) {
-            if (Hex.findIndex(Hex.plateau, adjacent) == targetHexId) {
+            if (Hex.findIndex(Hex.plateau, adjacent) == targetHexId && !this.isHexControlledByMe(targetHexId,this)) {
                 return true; // Hexagone adjacent
             }
         }
@@ -359,6 +370,16 @@ public abstract class Joueur {
         this.score += points;
     }
 
+    public boolean controlsTriPrime(){
+        ArrayList<Hex> controlledHexs =this.getControlledHex(this);
+        for (Hex hex: controlledHexs){
+            if (hex.getIdSector()==4){
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Permet d'obtenir tous les hexagones contrôlés par le joueur
      * 
@@ -367,18 +388,18 @@ public abstract class Joueur {
      */
     public ArrayList<Hex> getControlledHex(Joueur joueur) {
         Partie partie = Partie.getInstance();
-        ArrayList<Hex> ControlledHexs = new ArrayList<Hex>();
+        ArrayList<Hex> controlledHexs = new ArrayList<Hex>();
         for (int i = 0; i < partie.sector.length; i++) {
             for (int j = 0; j < partie.sector[i].hex.length; j++) {
                 if (!partie.sector[i].hex[j].getShips().isEmpty()) {
                     if (partie.sector[i].hex[j].getShips().get(0).joueur == joueur) {
-                        ControlledHexs.add(partie.sector[i].hex[j]);
+                        controlledHexs.add(partie.sector[i].hex[j]);
                     }
                 }
 
             }
         }
-        return ControlledHexs;
+        return controlledHexs;
     }
 
     /**
@@ -460,8 +481,6 @@ public abstract class Joueur {
      */
     public int exploreRandom(int fleetsToMove,
             ArrayList<int[]> doNotUse, int nbMoves, int startHexId) {
-        System.out.println("explore random");
-        System.out.println(fleetsToMove);
         Partie partie = Partie.getInstance();
 
         Random random = new Random();
@@ -483,17 +502,13 @@ public abstract class Joueur {
                     ? myHexIds.get(random.nextInt(myHexIds.size()))
                     : startHexId;
             Hex startHex = partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]];
+            fleetsToMove--; // Réduit le nombre de flottes restantes
             for (int i = 0; i < nbMoves; i++) {
 
                 do {
                     targetHexId = Hex.findIndex(Hex.plateau,
                             startHex.getAdjacents()[random.nextInt(startHex.getAdjacents().length)]);
-
                 } while (!isHexAdjacentAndFree(startHexId, targetHexId));
-                System.out.println("Nombre de bateaux : "
-                        + partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]]
-                                .getShips()
-                                .size());
 
                 int nbShipsMoving = partie.sector[Hex.plateau[startHexId][0]].hex[Hex.plateau[startHexId][1]].getShips()
                         .size() == 1 ? 1
@@ -514,10 +529,11 @@ public abstract class Joueur {
                 startHexId = targetHexId;
             }
 
-            fleetsToMove--; // Réduit le nombre de flottes restantes
         }
         partie.closeImage();
         partie.affichagePlateau();
         return targetHexId;
     }
+
+    public abstract ArrayList<Sector> scoreSector(ArrayList<Sector> cardsChosen, int coef);
 }

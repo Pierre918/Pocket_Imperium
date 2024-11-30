@@ -178,7 +178,7 @@ public class Hex {
     /**
      * Permet de définir les hexagones adjacents
      */
-    public int[][][] plateauAdj = {
+    public static int[][][] plateauAdj = {
             { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 } },
             { { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 2 }, { 2, 3 } },
             { { 0, 4 }, { 0, 5 }, { 1, 4 }, { 1, 5 }, { 2, 4 }, { 2, 5 } },
@@ -254,46 +254,46 @@ public class Hex {
             this.adjacents = res.toArray(new int[0][]);
             return;
         }
-        for (int i = 0; i < this.plateauAdj.length; i++) {
-            for (int j = 0; j < this.plateauAdj[i].length; j++) {
-                if (this.plateauAdj[i][j][0] == idSector && this.plateauAdj[i][j][1] == id) {
+        for (int i = 0; i < Hex.plateauAdj.length; i++) {
+            for (int j = 0; j < Hex.plateauAdj[i].length; j++) {
+                if (Hex.plateauAdj[i][j][0] == idSector && Hex.plateauAdj[i][j][1] == id) {
                     try {
-                        if (!resContains(res, this.plateauAdj[i][j - 1][0], this.plateauAdj[i][j - 1][1])) {
-                            res.add(this.plateauAdj[i][j - 1]);
+                        if (!resContains(res, Hex.plateauAdj[i][j - 1][0], Hex.plateauAdj[i][j - 1][1])) {
+                            res.add(Hex.plateauAdj[i][j - 1]);
                         }
                     } catch (Exception e) {
                     }
                     try {
-                        if (!resContains(res, this.plateauAdj[i][j + 1][0], this.plateauAdj[i][j + 1][1])) {
-                            res.add(this.plateauAdj[i][j + 1]);
+                        if (!resContains(res, Hex.plateauAdj[i][j + 1][0], Hex.plateauAdj[i][j + 1][1])) {
+                            res.add(Hex.plateauAdj[i][j + 1]);
                         }
                     } catch (Exception e) {
                     }
                     try {
-                        if (!resContains(res, this.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j][0],
-                                this.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j][1])) {
-                            res.add(this.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j]);
+                        if (!resContains(res, Hex.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j][0],
+                                Hex.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j][1])) {
+                            res.add(Hex.plateauAdj[i + 1][i % 2 == 0 ? j - 1 : j]);
                         }
                     } catch (Exception e) {
                     }
                     try {
-                        if (!resContains(res, this.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1][0],
-                                this.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1][1])) {
-                            res.add(this.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1]);
+                        if (!resContains(res, Hex.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1][0],
+                                Hex.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1][1])) {
+                            res.add(Hex.plateauAdj[i + 1][i % 2 == 0 ? j : j + 1]);
                         }
                     } catch (Exception e) {
                     }
                     try {
-                        if (!resContains(res, this.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j][0],
-                                this.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j][1])) {
-                            res.add(this.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j]);
+                        if (!resContains(res, Hex.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j][0],
+                                Hex.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j][1])) {
+                            res.add(Hex.plateauAdj[i - 1][i % 2 == 0 ? j - 1 : j]);
                         }
                     } catch (Exception e) {
                     }
                     try {
-                        if (!resContains(res, this.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1][0],
-                                this.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1][1])) {
-                            res.add(this.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1]);
+                        if (!resContains(res, Hex.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1][0],
+                                Hex.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1][1])) {
+                            res.add(Hex.plateauAdj[i - 1][i % 2 == 0 ? j : j + 1]);
                         }
                     } catch (Exception e) {
                     }

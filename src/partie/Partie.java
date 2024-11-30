@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,7 @@ import joueurs.BotRandom;
 import joueurs.CommandCards;
 import joueurs.Joueur;
 import joueurs.VraiJoueur;
+import plateau.Hex;
 import plateau.Sector;
 
 /**
@@ -242,12 +244,12 @@ public class Partie {
     }
 
     /**
-     * Méthode pour vérifier si un secteur est occupé par un joueur.
+     * Méthode pour vérifier si un secteur est occupé par un joueur. Pour les planètes de niveau 1 uniquement
      *
      * @param sec Le secteur à vérifier.
      * @return true si le secteur est occupé, false sinon.
      */
-    public boolean sectorIsTaken(Sector sec) {
+    public boolean sectorIsTakenL1(Sector sec) {
         for (int i = 0; i < sec.hex.length; i++) {
             if (sec.hex[i].getPlanetContained() == 1 && !sec.hex[i].getShips().isEmpty()) {
                 return true;
@@ -255,7 +257,20 @@ public class Partie {
         }
         return false;
     }
-
+    /**
+     * Méthode pour vérifier si un secteur est occupé par un joueur.
+     *
+     * @param sec Le secteur à vérifier.
+     * @return true si le secteur est occupé, false sinon.
+     */
+    public boolean sectorIsTaken(Sector sec) {
+        for (int i = 0; i < sec.hex.length; i++) {
+            if (!sec.hex[i].getShips().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * Méthode pour le déploiement initial des joueurs.
      *
@@ -294,6 +309,15 @@ public class Partie {
         }
     }
 
+    public boolean aPlayerHasNoShip(){
+        Partie partie = Partie.getInstance();
+        for (int i=0;i<3;i++){
+            if(partie.joueurs.get(i).getControlledHex(partie.joueurs.get(i)).size()==0){
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * Permet à tout le monde de savoir en début de partie quel bot est agressif et
      * quel bot est aléatoire.
@@ -310,6 +334,50 @@ public class Partie {
 
         }
         System.out.println("\n");
+    }
+
+    public void exploit() {
+        Partie partie = Partie.getInstance();
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < partie.sector[i].hex.length; j++) {
+
+                if (!partie.sector[i].hex[j].getShips().isEmpty()) {
+                    while (partie.sector[i].hex[j].getShips().size() > partie.sector[i].hex[j].getPlanetContained()
+                            + 1) {
+                        partie.sector[i].hex[j].deleteShips(1);
+                        Joueur.backToSupply(Hex.findIndex(Hex.plateau, new int[] { i, j }), 1);
+                    }
+                }
+            }
+        }
+        partie.closeImage();
+        partie.affichagePlateau();
+    }
+
+    public void scoreSector(int coef) {
+        System.out.println("\n");
+        ArrayList<Sector> cardsChosen = new ArrayList<Sector>();
+        Partie partie = Partie.getInstance();
+        for (int i = 0; i < 3; i++) {
+            cardsChosen=partie.joueurs.get(i).scoreSector(cardsChosen,coef);
+        }
+    }
+
+    public ArrayList<Joueur> getWinner() {
+        Partie partie = Partie.getInstance();
+        ArrayList<Joueur> winners = new ArrayList<Joueur>();
+        int max = -1;
+        for (int i = 0; i < 3; i++) {
+            if (partie.joueurs.get(i).getScore() > max) {
+                max = partie.joueurs.get(i).getScore();
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            if (partie.joueurs.get(i).getScore() == max) {
+                winners.add(partie.joueurs.get(i));
+            }
+        }
+        return winners;
     }
 
     /**
@@ -374,13 +442,34 @@ public class Partie {
         partie.devoilerJoueurs();
         // Phase de déploiement initial
         partie.initialDeployment();
-        // Phase de choix des stratégies
-        for (Joueur joueur : partie.joueurs) {
-            System.out.println("Joueur " + (joueur.getColor() == Color.BLUE ? "bleu :"
-                    : joueur.getColor() == Color.GREEN ? "vert :" : "jaune :") + "choix de la stratégie");
-            joueur.chooseStrat();
+        for (int i = 0; i < 9; i++) { 
+            System.out.println("\nRound n°"+(i+1));
+            // Phase de choix des stratégies
+            for (Joueur joueur : partie.joueurs) {
+                System.out.println("Joueur " + (joueur.getColor() == Color.BLUE ? "bleu "
+                        : joueur.getColor() == Color.GREEN ? "vert " : "jaune ") + "choix de la stratégie");
+                joueur.chooseStrat();
+            }
+            partie.perform();
+
+            partie.exploit();
+
+            partie.scoreSector(i == 9 ? 2 : 1);
+            if (partie.aPlayerHasNoShip()){
+                System.out.println("Un des joueurs n'a plus de vaisseau, fin de la partie");
+                break;
+            }
         }
-        partie.perform();
+        System.out.println("And the winner is.........");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (Joueur j : partie.getWinner()) {
+            System.out.println("Joueur " + (j.getColor() == Color.BLUE ? "bleu"
+                    : j.getColor() == Color.GREEN ? "vert" : "jaune") + (partie.getWinner().size()>1?", ":""));
+        }
     }
 
 }

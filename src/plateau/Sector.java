@@ -2,6 +2,8 @@ package plateau;
 
 import java.util.List;
 
+import partie.Partie;
+
 public class Sector {
     public Hex[] hex;
 
@@ -110,5 +112,16 @@ public class Sector {
      */
     public Sector(Hex[] hex) {
         this.hex = hex;
+    }
+
+    public static int nbSectorTaken(){
+        Partie partie = Partie.getInstance();
+        int ans=0;
+        for (int i=0;i<9;i++){
+            if (partie.sectorIsTaken(partie.sector[i]) && i!=4){
+                ans++;
+            }
+        }
+        return ans;
     }
 }

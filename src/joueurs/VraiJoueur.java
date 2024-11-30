@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import command.Command;
 import partie.Partie;
 import plateau.Hex;
+import plateau.Sector;
 
 /**
  * La classe VraiJoueur représente un joueur humain dans le jeu. Elle étend la
@@ -75,9 +76,9 @@ public class VraiJoueur extends Joueur {
             choix = Command.askInteger(-1, 49, "Erreur");
             if (partie.sector[Hex.plateau[choix][0]].hex[Hex.plateau[choix][1]].getShips().isEmpty()
                     && partie.sector[Hex.plateau[choix][0]].hex[Hex.plateau[choix][1]].getPlanetContained() == 1
-                    && !partie.sectorIsTaken(partie.sector[Hex.plateau[choix][0]])) {
+                    && !partie.sectorIsTakenL1(partie.sector[Hex.plateau[choix][0]])) {
                 isCorrect = true;
-            } else if (partie.sectorIsTaken(partie.sector[Hex.plateau[choix][0]])) {
+            } else if (partie.sectorIsTakenL1(partie.sector[Hex.plateau[choix][0]])) {
                 System.out.println("Ce secteur a déjà un de ses systèmes de niveaux 1 occupé.");
             } else {
                 System.out.println("Sélection incorrect");
@@ -128,7 +129,10 @@ public class VraiJoueur extends Joueur {
             case 2 -> 2;
             default -> 1;
         };
-
+        if (this.getControlledHex(this).isEmpty()){
+            System.out.println("Plus de vaisseau sur le plateau");
+            return;
+        }
         System.out.println("Exécution de l'action EXPAND : vous pouvez ajouter " + shipsToAdd
                 + " vaisseaux aux hexagones contrôlés.");
 
@@ -231,7 +235,7 @@ public class VraiJoueur extends Joueur {
                 targetHexId = Command.askInteger(-1, 49, "Erreur");
 
                 // Vérifie si l'hexagone cible est adjacent et non contrôlé par ce joueur
-                if (!this.isHexAdjacent(startHex, targetHexId)) {
+                if (!this.isHexAdjacentAndNotMine(startHex, targetHexId)) {
                     System.out.println("Hexagone non adjacent ou déjà contrôlé. Veuillez réessayer.");
                 } else {
                     goodAnsw = true;
@@ -336,9 +340,11 @@ public class VraiJoueur extends Joueur {
                 moveFleet(startHexId, targetHexId, nbShipsMoving);
                 if (j == 1) {
                     doNotUse.add(Hex.plateau[targetHexId]);
+                } else {
+                    System.out.println("L'hexagone de départ est maintenant l'hexagone que vous venez d'envahir.");
                 }
                 startHexId = targetHexId;
-                System.out.println("L'hexagone de départ est maintenant l'hexagone que vous venez d'envahir.");
+
                 partie.closeImage();
                 partie.affichagePlateau();
             }
@@ -346,5 +352,45 @@ public class VraiJoueur extends Joueur {
         }
 
         System.out.println("Exploration terminée.");
+    }
+
+    public ArrayList<Sector> scoreSector(ArrayList<Sector> cardsChosen, int coef) {
+        Partie partie = Partie.getInstance();
+        for (int j = 0; j < (this.controlsTriPrime() && coef!=2 ? 2 : 1); j++) {
+            if (cardsChosen.size() == Sector.nbSectorTaken()){
+                System.out.println("Plus aucune carte disponible, fin du scoring");
+                break;
+            }
+            System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu :"
+                    : this.getColor() == Color.GREEN ? "vert :" : "jaune :")
+                    + "Choisissez un secteur occupé et non choisi à scorer (hors TriPrime)");
+
+            int n = -1;
+            int l = 0;
+            while (n == -1) {
+                if (l > 0) {
+                    System.out.println("Erreur de saisi, réessayez.");
+                }
+                n = Command.askInteger(0, 10,
+                        "Erreur, les secteurs sont numérotés de gauche à droite, de haut en bas");
+                l++;
+                if (!partie.sectorIsTaken(partie.sector[n - 1]) || n == 5
+                        || cardsChosen.contains(partie.sector[n - 1])) {
+                    n = -1;
+                }
+            }
+            cardsChosen.add(partie.sector[n - 1]);
+            for (Hex hex : partie.sector[n - 1].hex) {
+                if (!hex.getShips().isEmpty()) {
+                    if (hex.getShips().get(0).joueur == this) {
+                        this.ajouterScore(hex.getPlanetContained() * coef);
+                    }
+                }
+            }
+            System.out.println("Joueur " + (this.getColor() == Color.BLUE ? "bleu "
+                    : this.getColor() == Color.GREEN ? "vert " : "jaune ") + "a "
+                    + this.getScore() + " points");
+        }
+        return cardsChosen;
     }
 }
