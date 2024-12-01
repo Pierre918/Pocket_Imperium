@@ -252,8 +252,6 @@ public abstract class Joueur {
         int defenderShips = partie.sector[Hex.plateau[targetHexId][0]].hex[Hex.plateau[targetHexId][1]].getShips()
                 .size(); // Vaisseaux défensifs
 
-        System.out.println(
-                "Attaquant : " + attackerShips + " vaisseau(x), Défenseur : " + defenderShips + " vaisseau(x)");
 
         int minShips = Math.min(attackerShips, defenderShips);
 
@@ -290,10 +288,10 @@ public abstract class Joueur {
      * @param targetHexId L'ID de l'hexagone cible.
      * @return true si l'hexagone cible est adjacent, false sinon.
      */
-    protected boolean isHexAdjacentAndNotMine(Hex startHex, int targetHexId) {
+    protected boolean isHexAdjacents(Hex startHex, int targetHexId) {
         int[][] adjacents = startHex.getAdjacents();
         for (int[] adjacent : adjacents) {
-            if (Hex.findIndex(Hex.plateau, adjacent) == targetHexId && !this.isHexControlledByMe(targetHexId,this)) {
+            if (Hex.findIndex(Hex.plateau, adjacent) == targetHexId) {
                 return true; // Hexagone adjacent
             }
         }

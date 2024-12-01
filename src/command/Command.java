@@ -16,7 +16,7 @@ public class Command {
      * @return
      */
     public static int askInteger(int boundInf, int boundSup, String errMessage) {
-        int ans = -1;
+        int ans = -2;
         int i=0;
         while (ans <= boundInf || ans >= boundSup) {
             if (i>0){
@@ -25,7 +25,7 @@ public class Command {
             try {
                 ans = scanner.nextInt();
             } catch (Exception e) {
-                ans = -1;
+                ans = -2;
                 scanner.next();
             }
             i++;
