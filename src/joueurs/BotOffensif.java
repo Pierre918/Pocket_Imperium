@@ -347,6 +347,12 @@ public class BotOffensif extends Joueur {
         System.out.println("Exploration terminée.");
     }
 
+    
+    /** 
+     * Méthode permettant de choisir le secteur a scoré en optimisant les points gagnés.
+     * @param cardsChosen Les secteurs déjà choisis
+     * @return Sector
+     */
     public Sector chooseSector(ArrayList<Sector> cardsChosen) {
         Partie partie = Partie.getInstance();
         int maxPoints = -1;
@@ -373,6 +379,13 @@ public class BotOffensif extends Joueur {
         return ans;
     }
 
+    
+    /**
+     * Méthode permettant de faire le scoring des secteurs en fin de round
+     * @param cardsChosen Les secteurs qui ont déjà été choisis
+     * @param coef Savoir si les points valent *2 (pour le dernier round)
+     * @return ArrayList<Sector> Renvoi cardsChosen actualisés
+     */
     public ArrayList<Sector> scoreSector(ArrayList<Sector> cardsChosen, int coef) {
         for (int j = 0; j < (this.controlsTriPrime() && coef!=2 ? 2 : 1); j++) {
             if (cardsChosen.size() == Sector.nbSectorTaken()) {

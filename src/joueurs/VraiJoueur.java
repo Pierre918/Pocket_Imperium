@@ -7,7 +7,6 @@ import command.Command;
 import partie.Partie;
 import plateau.Hex;
 import plateau.Sector;
-import vaisseaux.Ship;
 
 /**
  * La classe VraiJoueur représente un joueur humain dans le jeu. Elle étend la
@@ -167,6 +166,11 @@ public class VraiJoueur extends Joueur {
         }
     }
 
+    /**
+     * Méthode permettant de savoir si un hexagone est controlé par le joueur. Prend en paramètre l'id de l'hexagone
+     * @param targetHexId
+     * @return
+     */
     public boolean hasAdjControlledByMe(int targetHexId) {
         Partie partie = Partie.getInstance();
         Hex targetHex = partie.sector[Hex.plateau[targetHexId][0]].hex[Hex.plateau[targetHexId][1]];
@@ -387,6 +391,12 @@ public class VraiJoueur extends Joueur {
         System.out.println("Exploration terminée.");
     }
 
+
+    /**
+     * Méthode permettant de faire le scoring des secteurs en fin de round
+     * @param cardsChosen Les secteurs qui ont déjà été choisis
+     * @param coef Savoir si les points valent *2 (pour le dernier round)
+     */
     public ArrayList<Sector> scoreSector(ArrayList<Sector> cardsChosen, int coef) {
         Partie partie = Partie.getInstance();
         for (int j = 0; j < (this.controlsTriPrime() && coef != 2 ? 2 : 1); j++) {

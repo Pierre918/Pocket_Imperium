@@ -160,6 +160,13 @@ public class BotRandom extends Joueur {
         System.out.println("Exploration terminée.");
     }
 
+    
+    /** 
+     * Méthode permettant de faire le scoring des secteurs en fin de round
+     * @param cardsChosen Les secteurs qui ont déjà été choisis
+     * @param coef Savoir si les points valent *2 (pour le dernier round)
+     * @return ArrayList<Sector>
+     */
     public ArrayList<Sector> scoreSector(ArrayList<Sector> cardsChosen, int coef) {
         Partie partie = Partie.getInstance();
         for (int j = 0; j < (this.controlsTriPrime() && coef!=2 ? 2 : 1); j++) {

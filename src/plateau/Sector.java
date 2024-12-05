@@ -114,6 +114,10 @@ public class Sector {
         this.hex = hex;
     }
 
+    /**
+     * Connaitre le nombre de secteur occupé
+     * @return
+     */
     public static int nbSectorTaken(){
         Partie partie = Partie.getInstance();
         int ans=0;

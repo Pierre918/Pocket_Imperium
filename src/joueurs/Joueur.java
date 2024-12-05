@@ -160,6 +160,11 @@ public abstract class Joueur {
         return invadeHexId;
     }
 
+    /** 
+     * Permet de savoir si listOfArrays contient targetArray
+     * @param listOfArrays
+     * @param targetArray
+     */
     public static boolean containsArray(List<int[]> listOfArrays, int[] targetArray) {
         for (int[] array : listOfArrays) {
             if (Arrays.equals(array, targetArray)) {
@@ -533,5 +538,11 @@ public abstract class Joueur {
         return targetHexId;
     }
 
+    /**
+     * Méthode abstraite pour scorer les secteurs en fin de round pour chaque type de joueur
+     * @param cardsChosen
+     * @param coef
+     * @return
+     */
     public abstract ArrayList<Sector> scoreSector(ArrayList<Sector> cardsChosen, int coef);
 }

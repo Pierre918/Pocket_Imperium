@@ -309,6 +309,10 @@ public class Partie {
         }
     }
 
+    /**
+     * Pour vérifier si un joueur a toujours des vaisseaux. S'il n'en a pas la partie s'arrête
+     * @return
+     */
     public boolean aPlayerHasNoShip(){
         Partie partie = Partie.getInstance();
         for (int i=0;i<3;i++){
@@ -336,6 +340,9 @@ public class Partie {
         System.out.println("\n");
     }
 
+    /**
+     * Méthode pour supprimer les vaisseaux que les hexagones ne peuvent pas supporter avant le scoring
+     */
     public void exploit() {
         Partie partie = Partie.getInstance();
         for (int i = 0; i < 9; i++) {
@@ -354,6 +361,10 @@ public class Partie {
         partie.affichagePlateau();
     }
 
+    /**
+     * Pour scorer les secteur de chaque joueur en fin de round
+     * @param coef
+     */
     public void scoreSector(int coef) {
         System.out.println("\n");
         ArrayList<Sector> cardsChosen = new ArrayList<Sector>();
@@ -363,6 +374,10 @@ public class Partie {
         }
     }
 
+    /**
+     * Méthode pour désigner un gagnant au jeu en comparant les scores. S'éxecute en fin de partie.
+     * @return
+     */
     public ArrayList<Joueur> getWinner() {
         Partie partie = Partie.getInstance();
         ArrayList<Joueur> winners = new ArrayList<Joueur>();
