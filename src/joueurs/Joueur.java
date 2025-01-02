@@ -79,8 +79,9 @@ public abstract class Joueur {
     /**
      * Déplace une flotte vers un nouvel hexagone.
      *
-     * @param startHex    L'hexagone de départ.
+     * @param startHexId    L'hexagone de départ.
      * @param targetHexId L'ID de l'hexagone cible.
+     * @param nbShipsMoving 
      */
     protected void moveFleet(int startHexId, int targetHexId, int nbShipsMoving) {
         Partie partie = Partie.getInstance();

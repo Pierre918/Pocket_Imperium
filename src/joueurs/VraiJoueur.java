@@ -20,7 +20,6 @@ public class VraiJoueur extends Joueur {
      * Constructeur de la classe VraiJoueur.
      *
      * @param color           La couleur du joueur.
-     * @param controlledHexes La liste des hexagones contrôlés par le joueur.
      */
     public VraiJoueur(Color color) {
         super(color);
