@@ -162,7 +162,7 @@ public class Hex {
         return planetContained;
     }
 
-    int[][] adjacents;
+    private int[][] adjacents;
 
     public static int[][] plateau = {
             { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 }, { 2, 1 },
@@ -301,15 +301,5 @@ public class Hex {
             }
         }
         this.adjacents = res.toArray(new int[0][]);
-    }
-
-    /**
-     * Juste pour faire des tests
-     *
-     * @param args Les arguments de la ligne de commande.
-     */
-    public static void main(String[] args) {
-        System.out.println("null");
-        System.out.println(Hex.plateau[4][0] + " " + Hex.plateau[4][1]);
     }
 }
